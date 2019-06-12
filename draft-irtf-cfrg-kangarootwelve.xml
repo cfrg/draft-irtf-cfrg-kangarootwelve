@@ -11,26 +11,7 @@
 <?rfc comments="yes"?>
 <?rfc inline="yes"?>
 
-<!-- Document  section
-
-Specify the category attribute per RFC2026
-options are info, std, bcp, or exp.
-
-docname is the name of the output document. This is optional;
-the default is to use the base portion of the XML filename.
-
-For Internet-drafts, indicate which intellectual property notice
-to use per the rules of RFC3978. The value (as of this template) can be:
-    full3978 -
-    noModification3978 -
-    noDerivatives3978 -
- The Intellectual Property section will be generated automatically by
-  XML2RFC, based on the ipr attribute in the rfc element.
-
-If this document obsoletes an RFC, specify the RFC in the "obsoletes" attribute
-If this document updates an RFC, specify the RFC in the "updates" attribute
--->
-<rfc category="info" docName="draft-viguier-kangarootwelve-04" ipr="trust200902">
+<rfc category="info" docName="draft-irtf-cfrg-kangarootwelve-00" ipr="trust200902">
 <front>
 
     <title abbrev="KangarooTwelve">KangarooTwelve</title>
@@ -55,14 +36,10 @@ If this document updates an RFC, specify the RFC in the "updates" attribute
     be sure the year is current.-->
     <date  year="2019" />
 
-    <!-- IETF area is optional -->
-
-    <!-- <area>Operations &amp; Management Area</area> -->
-
     <!--WG name at the upperleft corner of the doc,
     IETF is fine for non-WG IETF submissions -->
 
-    <workgroup>Internet Research Task Force (IRTF)</workgroup>
+    <workgroup>Crypto Forum</workgroup>
 
     <keyword>Keccak</keyword>
     <keyword>Sakura</keyword>
