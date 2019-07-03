@@ -2,9 +2,9 @@
 
 This is the working area for the individual Internet-Draft, "KangarooTwelve".
 
-* [Editor's Copy](https://ildyria.github.io/draft-irtf-cfrg-kangarootwelve/#go.draft-irtf-cfrg-kangarootwelve.html)
+* [Editor's Copy](https://cfrg.github.io/draft-irtf-cfrg-kangarootwelve/#go.draft-irtf-cfrg-kangarootwelve.html)
 * [Individual Draft](https://tools.ietf.org/html/draft-irtf-cfrg-kangarootwelve)
-* [Compare Editor's Copy to Individual Draft](https://ildyria.github.io/draft-irtf-cfrg-kangarootwelve/#go.draft-irtf-cfrg-kangarootwelve.diff)
+* [Compare Editor's Copy to Individual Draft](https://cfrg.github.io/draft-irtf-cfrg-kangarootwelve/#go.draft-irtf-cfrg-kangarootwelve.diff)
 
 ## Building the Draft
 
