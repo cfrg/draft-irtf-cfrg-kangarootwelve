@@ -32,6 +32,41 @@
       </address>
     </author>
 
+    <author fullname="David Wong" initials="D" surname="Wong">
+      <organization>Facebook</organization>
+      <address>
+        <email>b.viguier@cs.ru.nl</email>
+      </address>
+    </author>
+
+    <author fullname="Giles Van Assche" initials="G" surname="Van Assche">
+      <organization>STMicroelectronics</organization>
+      <address>
+        <email>gilles.vanassche@st.com</email>
+      </address>
+    </author>
+
+    <author fullname="Quynh Dang" initials="Q" surname="Dang">
+      <organization abbrev="NIST">National Institute of Standards and Technology</organization>
+      <address>
+        <email>quynh.dang@nist.gov</email>
+      </address>
+    </author>
+
+    <author fullname="Stanislav V. Smyshlyaev" initials="S" surname="Smyshlyaev">
+      <organization>CryptoPro</organization>
+      <address>
+        <email>smyshsv@gmail.com</email>
+      </address>
+    </author>
+
+    <author fullname="John Mattsson" initials="J" surname="Mattsson">
+      <organization>Ericsson</organization>
+      <address>
+        <email>john.mattsson@ericsson.com</email>
+      </address>
+    </author>
+
     <!-- month and day will be generated automatically by XL2RFC;
     be sure the year is current.-->
     <date  year="2019" />
