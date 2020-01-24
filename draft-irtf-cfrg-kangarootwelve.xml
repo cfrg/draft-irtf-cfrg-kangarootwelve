@@ -11,7 +11,7 @@
 <?rfc comments="yes"?>
 <?rfc inline="yes"?>
 
-<rfc category="info" docName="draft-irtf-cfrg-kangarootwelve-00" ipr="trust200902">
+<rfc category="info" docName="draft-irtf-cfrg-kangarootwelve-01" ipr="trust200902">
 <front>
 
     <title abbrev="KangarooTwelve">KangarooTwelve</title>
@@ -35,11 +35,11 @@
     <author fullname="David Wong" initials="D" surname="Wong" role="editor">
       <organization>Facebook</organization>
       <address>
-        <email>b.viguier@cs.ru.nl</email>
+        <email>davidwong.crypto@gmail.com</email>
       </address>
     </author>
 
-    <author fullname="Giles Van Assche" initials="G" surname="Van Assche" role="editor">
+    <author fullname="Gilles Van Assche" initials="G" surname="Van Assche" role="editor">
       <organization>STMicroelectronics</organization>
       <address>
         <email>gilles.vanassche@st.com</email>
@@ -75,7 +75,7 @@
 
     <!-- month and day will be generated automatically by XL2RFC;
     be sure the year is current.-->
-    <date  year="2019" />
+    <date  year="2020" />
 
     <!--WG name at the upperleft corner of the doc,
     IETF is fine for non-WG IETF submissions -->
