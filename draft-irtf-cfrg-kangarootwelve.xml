@@ -232,7 +232,7 @@
 
       <t>The sponge function F takes:<list style="hanging">
         <t hangText="input"> byte-string, the input bytes and</t>
-        <t hangText="outputByteLen"> positive integer, the Length of the output in bytes</t>
+        <t hangText="outputByteLen"> positive integer, the length of the output in bytes</t>
       </list></t>
 
       <t>First the message is padded with zeroes to the closest multiple of 168
@@ -240,7 +240,8 @@
       and the resulting string is split into a sequence of 168-byte blocks.</t>
 
       <t>As defined by the sponge construction, the process operates on a state
-      and consists of two phases.</t>
+      and consists of two phases: the absorbing phase that processes the input
+      and the squeezing phase that produces the output.</t>
 
       <t>In the absorbing phase the state is initialized to all-zero. The
       message blocks are XORed into the first 168 bytes of the state.
@@ -254,7 +255,7 @@
       one-byte-long input where the last byte is in the `01`-`7F` range.
       This is the case in KangarooTwelve.</t>
 
-      <t>A pseudo-code version is available as follows:</t>
+      <t>A pseudocode version is available as follows:</t>
 
       <t><figure><artwork><![CDATA[
   F(input, outputByteLen):
@@ -263,13 +264,13 @@
 
     # === Absorb complete blocks ===
     while offset < |input| - 168
-        state ^= inputBytes[offset : offset + 168] || `00`^32
+        state ^= input[offset : offset + 168] || `00`^32
         state = KP(state)
         offset += 168
 
     # === Absorb last block and treatment of padding ===
     LastBlockLength = |input| - offset
-    state ^= inputBytes[offset:] || `00`^(200-LastBlockLength)
+    state ^= input[offset:] || `00`^(200-LastBlockLength)
     state ^= `00`^167 || `80` || `00`^32
     state = KP(state)
 
@@ -301,13 +302,13 @@
       <t>Then, split S into n chunks of 8192 bytes.</t>
 
       <t><figure><artwork><![CDATA[
-          S = S_0 || .. || S_n-1
-            |S_0| = .. = |S_n-2| = 8192 bytes
-            |S_n-1| <= 8192 bytes ]]></artwork></figure></t>
+          S = S_0 || .. || S_(n-1)
+            |S_0| = .. = |S_(n-2)| = 8192 bytes
+            |S_(n-1)| <= 8192 bytes ]]></artwork></figure></t>
 
-      <t>From S_1 .. S_n-1, compute the 32-bytes Chaining Values CV_1 .. CV_n-1.
-      This computation SHOULD exploit the parallelism available on the platform
-      in order to be optimally efficient.</t>
+      <t>From S_1 .. S_(n-1), compute the 32-byte Chaining Values CV_1 .. CV_(n-1).
+      In order to be optimally efficient, this computation SHOULD exploit the
+      parallelism available on the platform such as SIMD instructions.</t>
 
       <t><figure><artwork><![CDATA[
              CV_i    = F( S_i||`0B`, 32 )]]></artwork></figure></t>
@@ -322,7 +323,7 @@
           FinalNode = S_0 || `03 00 00 00 00 00 00 00`
           FinalNode = FinalNode || CV_1
                 ..
-          FinalNode = FinalNode || CV_n-1
+          FinalNode = FinalNode || CV_(n-1)
           FinalNode = FinalNode || length_encode(n-1)
           FinalNode = FinalNode || `FF FF`]]></artwork></figure></t>
 
@@ -374,7 +375,7 @@
           ...                      ...
                                    ||
 +---------+  F(..||`0B`,32)  +--------------+
-|  S_n-1  |----------------->|    CV_n-1    |
+| S_(n-1) |----------------->|   CV_(n-1)   |
 +---------+                  +--------------+
                                    ||
                              +--------------+
@@ -385,9 +386,9 @@
                              |   `FF FF`  |----------------->  output
                              +------------+]]></artwork></figure></t>
 
-      <t>We provide a pseudo code version in <xref target="K_PC"/>.</t>
+      <t>We provide a pseudocode version in <xref target="K_PC"/>.</t>
 
-      <t>In the table below are gathered the values of the domain separation
+      <t>The table below gathers the values of the domain separation
       bytes used by the tree hash mode:</t>
 
       <t><figure><artwork><![CDATA[
@@ -406,19 +407,19 @@
     <section anchor="RE" title="length_encode( x )">
 
       <t>The function length_encode takes as inputs a non negative integer x
-      &lt; 256**255 and outputs a string of bytes x_n-1 || .. || x_0 || n where</t>
+      &lt; 256**255 and outputs a string of bytes x_(n-1) || .. || x_0 || n where</t>
 
       <t><figure>
       <artwork><![CDATA[             x = sum from i=0..n-1 of 256**i * x_i]]>
       </artwork></figure></t>
 
       <t>and where n is the smallest non-negative integer such that x &lt; 256**n.
-      n is also the length of x_n-1 || .. || x_0.</t>
+      n is also the length of x_(n-1) || .. || x_0.</t>
 
       <t>As example, length_encode(0) = `00`, length_encode(12) = `0C 01` and
       length_encode(65538) = `01 00 02 03`</t>
 
-      <t>A pseudo code version is as follows.</t>
+      <t>A pseudocode version is as follows.</t>
 
       <t><figure><artwork><![CDATA[
   length_encode(x):
@@ -652,8 +653,8 @@
 
 </references>
 
-  <section anchor="pseudo_code" title="Pseudo code">
-    <t>The sub-sections of this appendix contain pseudo code definitions of
+  <section anchor="pseudocode" title="Pseudocode">
+    <t>The sub-sections of this appendix contain pseudocode definitions of
     KangarooTwelve. A standalone Python version is also available in the
     Keccak Code Package <xref target="XKCP"></xref> and in <xref target="K12"></xref>
   </t>
