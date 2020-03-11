@@ -537,9 +537,22 @@
   <section anchor="Security" title="Security Considerations">
     <t>This document is meant to serve as a stable reference and an
     implementation guide for the KangarooTwelve eXtendable Output Function.
-    It relies on the cryptanalysis of Keccak
-    <xref target="KECCAK_CRYPTANALYSIS" /> and provides with the same security
+    It relies on the cryptanalysis of Keccak and provides with the same security
     strength as SHAKE128, i.e., 128 bits of security against all attacks</t>
+
+    <t>
+    To be more precise, KangarooTwelve is made of two layers:
+    <list style="symbols">
+    <t>The inner function F. This layer relies on cryptanalysis.
+    KangarooTwelve's F function is exactly Keccak[r=1344, c=256] (as in SHAKE128)
+    reduced to 12 rounds. Any reduced-round cryptanalysis on Keccak
+    is also a reduced-round cryptanalysis of KangarooTwelve's F
+    (provided the number of rounds attacked is not higher than 12).</t>
+    <t>The tree hashing over F. This layer is a mode on top of F that does
+    not introduce any vulnerability thanks to the use of Sakura coding
+    proven secure in <xref target="SAKURA"/>.</t>
+    </list></t>
+    <t>This reasoning is detailed and formalized in <xref target="K12"/>.</t>
 
     <t>To achieve 128-bit security strength, the output L must be chosen long
     enough so that there are no generic attacks that violate 128-bit security.
@@ -548,7 +561,8 @@
     the output should be at least 128+log_2(T) bits
     and for 128-bit collision security the output should be at least 256 bits.</t>
 
-    <t>Furthermore, when the output length is at least 256 bits, KangarooTwelve achieves NIST's post-quantum security level 2 <xref target="NISTPQ"/>.</t>
+    <t>Furthermore, when the output length is at least 256 bits,
+      KangarooTwelve achieves NIST's post-quantum security level 2 <xref target="NISTPQ"/>.</t>
   </section>
 
 <!--
