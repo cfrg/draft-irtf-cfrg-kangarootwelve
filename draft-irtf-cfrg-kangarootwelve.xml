@@ -11,7 +11,7 @@
 <?rfc comments="yes"?>
 <?rfc inline="yes"?>
 
-<rfc category="info" docName="draft-irtf-cfrg-kangarootwelve-02" ipr="trust200902">
+<rfc category="info" docName="draft-irtf-cfrg-kangarootwelve-03" ipr="trust200902">
 <front>
 
     <title abbrev="KangarooTwelve">KangarooTwelve</title>
@@ -115,7 +115,7 @@
     <t>The SHA-3 functions process data in a serial manner and are unable to
     optimally exploit parallelism available in modern CPU architectures.
     Similar to ParallelHash <xref target="SP800-185"></xref>, KangarooTwelve splits
-    the input message in fragments to exploit available parallelism. It then
+    the input message into fragments to exploit available parallelism. It then
     applies an inner hash function F on each of them separately before applying
     F again on the concatenation of the digests.
     It makes use of Sakura coding for ensuring soundness of the tree hashing
@@ -139,7 +139,7 @@
     allows the use of a customization string.</t>
 
     <t>Unlike any <xref target="FIPS202"></xref> and <xref target="SP800-185"></xref>
-    functions but ParallelHash, KangarooTwelve splits the input message in
+    functions but ParallelHash, KangarooTwelve splits the input message into
     fragments to exploit available parallelism.</t>
 
     <t>Unlike ParallelHash, KangarooTwelve does not have overhead when
@@ -173,8 +173,8 @@
         <t hangText="a||b">denotes the concatenation of two strings a and b.
         For example, `10`||`F1` = `10 F1`</t>
 
-        <t hangText="s[n:m]">denotes the selection of bytes from n to m
-        exclusive of a string s.
+        <t hangText="s[n:m]">denotes the selection of bytes from n (inclusive) to m
+        (exclusive) of a string s. The indexing of a byte-string starts at 0.
         For example, for s = `A5 C6 D7`, s[0:1] = `A5` and s[1:3] = `C6 D7`.</t>
 
         <t hangText="s[n:]">denotes the selection of bytes from n to the end of
@@ -197,7 +197,7 @@
 
         <t hangText="x-=y"> denotes x takes the value x - y.</t>
 
-        <t hangText="x**y"> denotes x multiplied by itself y times.</t>
+        <t hangText="x**y"> denotes the exponentiation of x by y.</t>
         </list></t>
     </section>
   </section>
@@ -209,7 +209,7 @@
     where <list style="hanging">
       <t hangText="M"> byte-string, is the Message and</t>
       <t hangText="C"> byte-string, is an OPTIONAL Customization string and</t>
-      <t hangText="L"> positive integer, the number of output bytes requested.</t>
+      <t hangText="L"> positive integer, the requested number of output bytes.</t>
     </list></t>
 
     <t>The Customization string MAY serve as domain separation.
@@ -231,13 +231,16 @@
       or 32 bytes.</t>
 
       <t>The sponge function F takes:<list style="hanging">
-        <t hangText="input"> byte-string, the input bytes and</t>
+        <t hangText="input"> byte-string of positive length, the input bytes and</t>
         <t hangText="outputByteLen"> positive integer, the length of the output in bytes</t>
       </list></t>
 
-      <t>First the message is padded with zeroes to the closest multiple of 168
-      bytes. Then a byte `80` is XORed to the last byte of the padded message.
+      <t>First non-multiple of 168-bytes-length inputs are padded with zeroes to the next 
+      multiple of 168 bytes while inputs multiple of 168 bytes are kept as is.
+      Then a byte `80` is XORed to the last byte of the padded message 
       and the resulting string is split into a sequence of 168-byte blocks.</t>
+
+      <t>Inputs of length 0 bytes do not happen as a result of the tree hashing mode defined in section 2.2.</t>
 
       <t>As defined by the sponge construction, the process operates on a state
       and consists of two phases: the absorbing phase that processes the input
@@ -538,7 +541,7 @@
     <t>This document is meant to serve as a stable reference and an
     implementation guide for the KangarooTwelve eXtendable Output Function.
     It relies on the cryptanalysis of Keccak and provides with the same security
-    strength as SHAKE128, i.e., 128 bits of security against all attacks</t>
+    strength as SHAKE128, i.e., 128 bits of security against all attacks.</t>
 
     <t>
     To be more precise, KangarooTwelve is made of two layers:
@@ -563,6 +566,10 @@
 
     <t>Furthermore, when the output length is at least 256 bits,
       KangarooTwelve achieves NIST's post-quantum security level 2 <xref target="NISTPQ"/>.</t>
+
+    <t>KangarooTwelve SHOULD NOT be used in an HMAC construction as a collision in the F function would lead to forgeries.
+      Implementing a MAC with KangarooTwelve SHOULD use a HASH-then-MAC construction, named HopMAC and defined as follows:
+      HopMAC(Key, M, L) = K12(Key || K12(M, C,32), L).</t>
   </section>
 
 <!--
