@@ -567,9 +567,13 @@
     <t>Furthermore, when the output length is at least 256 bits,
       KangarooTwelve achieves NIST's post-quantum security level 2 <xref target="NISTPQ"/>.</t>
 
-    <t>KangarooTwelve SHOULD NOT be used in an HMAC construction as a collision in the F function would lead to forgeries.
+    <!-- <t>KangarooTwelve SHOULD NOT be used in an HMAC construction as a collision in the F function would lead to forgeries.
       Implementing a MAC with KangarooTwelve SHOULD use a HASH-then-MAC construction, named HopMAC and defined as follows:
-      HopMAC(Key, M, L) = K12(Key || K12(M, C,32), L).</t>
+      HopMAC(Key, M, L) = K12(Key || K12(M, C,32), L).</t> -->
+
+    <t>Implementing a MAC with KangarooTwelve SHOULD use a HASH-then-MAC construction.
+      This document recommends a method called HopMAC, defined as follows:
+      HopMAC(Key, M, C, L) = K12(K12(M, C, 32), Key, L).</t>
   </section>
 
 <!--
