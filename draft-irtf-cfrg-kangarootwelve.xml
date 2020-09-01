@@ -11,7 +11,7 @@
 <?rfc comments="yes"?>
 <?rfc inline="yes"?>
 
-<rfc category="info" docName="draft-irtf-cfrg-kangarootwelve-02" ipr="trust200902">
+<rfc category="info" docName="draft-irtf-cfrg-kangarootwelve-03" ipr="trust200902">
 <front>
 
     <title abbrev="KangarooTwelve">KangarooTwelve</title>
@@ -115,7 +115,7 @@
     <t>The SHA-3 functions process data in a serial manner and are unable to
     optimally exploit parallelism available in modern CPU architectures.
     Similar to ParallelHash <xref target="SP800-185"></xref>, KangarooTwelve splits
-    the input message in fragments to exploit available parallelism. It then
+    the input message into fragments to exploit available parallelism. It then
     applies an inner hash function F on each of them separately before applying
     F again on the concatenation of the digests.
     It makes use of Sakura coding for ensuring soundness of the tree hashing
@@ -139,7 +139,7 @@
     allows the use of a customization string.</t>
 
     <t>Unlike any <xref target="FIPS202"></xref> and <xref target="SP800-185"></xref>
-    functions but ParallelHash, KangarooTwelve splits the input message in
+    functions but ParallelHash, KangarooTwelve splits the input message into
     fragments to exploit available parallelism.</t>
 
     <t>Unlike ParallelHash, KangarooTwelve does not have overhead when
@@ -173,8 +173,8 @@
         <t hangText="a||b">denotes the concatenation of two strings a and b.
         For example, `10`||`F1` = `10 F1`</t>
 
-        <t hangText="s[n:m]">denotes the selection of bytes from n to m
-        exclusive of a string s.
+        <t hangText="s[n:m]">denotes the selection of bytes from n (inclusive) to m
+        (exclusive) of a string s. The indexing of a byte-string starts at 0.
         For example, for s = `A5 C6 D7`, s[0:1] = `A5` and s[1:3] = `C6 D7`.</t>
 
         <t hangText="s[n:]">denotes the selection of bytes from n to the end of
@@ -197,7 +197,7 @@
 
         <t hangText="x-=y"> denotes x takes the value x - y.</t>
 
-        <t hangText="x**y"> denotes x multiplied by itself y times.</t>
+        <t hangText="x**y"> denotes the exponentiation of x by y.</t>
         </list></t>
     </section>
   </section>
@@ -209,7 +209,7 @@
     where <list style="hanging">
       <t hangText="M"> byte-string, is the Message and</t>
       <t hangText="C"> byte-string, is an OPTIONAL Customization string and</t>
-      <t hangText="L"> positive integer, the number of output bytes requested.</t>
+      <t hangText="L"> positive integer, the requested number of output bytes.</t>
     </list></t>
 
     <t>The Customization string MAY serve as domain separation.
@@ -231,13 +231,16 @@
       or 32 bytes.</t>
 
       <t>The sponge function F takes:<list style="hanging">
-        <t hangText="input"> byte-string, the input bytes and</t>
+        <t hangText="input"> byte-string of positive length, the input bytes and</t>
         <t hangText="outputByteLen"> positive integer, the length of the output in bytes</t>
       </list></t>
 
-      <t>First the message is padded with zeroes to the closest multiple of 168
-      bytes. Then a byte `80` is XORed to the last byte of the padded message.
+      <t>First non-multiple of 168-bytes-length inputs are padded with zeroes to the next 
+      multiple of 168 bytes while inputs multiple of 168 bytes are kept as is.
+      Then a byte `80` is XORed to the last byte of the padded message 
       and the resulting string is split into a sequence of 168-byte blocks.</t>
+
+      <t>Inputs of length 0 bytes do not happen as a result of the tree hashing mode defined in section 2.2.</t>
 
       <t>As defined by the sponge construction, the process operates on a state
       and consists of two phases: the absorbing phase that processes the input
@@ -293,7 +296,7 @@
       Sakura-compatible tree hash mode <xref target="SAKURA"></xref>.
       First, merge M and the OPTIONAL C to a single input string S in a
       reversible way. length_encode( |C| ) gives the length in bytes of C as a
-      byte-string. length_encode( x ) may be abbreviated as l_e( x ).
+      byte-string.
       See <xref target="RE"/>.</t>
 
       <t><figure><artwork><![CDATA[
@@ -353,7 +356,7 @@
           +--------------+]]></artwork></figure></t>
 
       <t>The following figure illustrates the computation flow of KangarooTwelve
-        for |S| &gt; 8192 bytes:</t>
+        for |S| &gt; 8192 bytes and where length_encode( x ) is abbreviated as l_e( x ):</t>
 
       <t><figure><artwork><![CDATA[
                              +--------------+
@@ -382,9 +385,9 @@
                              |  l_e( n-1 )  |
                              +--------------+
                                    ||
-                             +------------+  F(..||`06`, L)
-                             |   `FF FF`  |----------------->  output
-                             +------------+]]></artwork></figure></t>
+                             +--------------+  F(..||`06`, L)
+                             |   `FF FF`    |----------------->  output
+                             +--------------+]]></artwork></figure></t>
 
       <t>We provide a pseudocode version in <xref target="K_PC"/>.</t>
 
@@ -410,8 +413,7 @@
       &lt; 256**255 and outputs a string of bytes x_(n-1) || .. || x_0 || n where</t>
 
       <t><figure>
-      <artwork><![CDATA[             x = sum from i=0..n-1 of 256**i * x_i]]>
-      </artwork></figure></t>
+      <artwork><![CDATA[             x = sum from i=0..n-1 of 256**i * x_i]]></artwork></figure></t>
 
       <t>and where n is the smallest non-negative integer such that x &lt; 256**n.
       n is also the length of x_(n-1) || .. || x_0.</t>
@@ -538,7 +540,7 @@
     <t>This document is meant to serve as a stable reference and an
     implementation guide for the KangarooTwelve eXtendable Output Function.
     It relies on the cryptanalysis of Keccak and provides with the same security
-    strength as SHAKE128, i.e., 128 bits of security against all attacks</t>
+    strength as SHAKE128, i.e., 128 bits of security against all attacks.</t>
 
     <t>
     To be more precise, KangarooTwelve is made of two layers:
@@ -546,11 +548,11 @@
     <t>The inner function F. This layer relies on cryptanalysis.
     KangarooTwelve's F function is exactly Keccak[r=1344, c=256] (as in SHAKE128)
     reduced to 12 rounds. Any reduced-round cryptanalysis on Keccak
-    is also a reduced-round cryptanalysis of KangarooTwelve's F
+    is also a reduced-round cryptanalysis of KangarooTwelve's F 
     (provided the number of rounds attacked is not higher than 12).</t>
-    <t>The tree hashing over F. This layer is a mode on top of F that does
-    not introduce any vulnerability thanks to the use of Sakura coding
-    proven secure in <xref target="SAKURA"/>.</t>
+    <t>The tree hashing over F. This layer is a mode on top
+    of F that does not introduce any vulnerability thanks to
+    the use of Sakura coding proven secure in <xref target="SAKURA"/>.</t>
     </list></t>
     <t>This reasoning is detailed and formalized in <xref target="K12"/>.</t>
 
@@ -563,6 +565,23 @@
 
     <t>Furthermore, when the output length is at least 256 bits,
       KangarooTwelve achieves NIST's post-quantum security level 2 <xref target="NISTPQ"/>.</t>
+
+    <t>Implementing a MAC with KangarooTwelve SHOULD use a HASH-then-MAC construction.
+      This document recommends a method called HopMAC, defined as follows:</t>
+
+    <t><figure>
+      <artwork><![CDATA[   HopMAC(Key, M, C, L) = K12(Key, K12(M, C, 32), L) ]]></artwork>
+      </figure></t>
+
+    <t>Similarly to HMAC, HopMAC consists of two calls: an inner call compressing the
+      message M and the optional customization string C to a digest,
+      and an outer call computing the tag from the key and the digest.</t>
+
+    <t>Unlike HMAC, the inner call to KangarooTwelve in HopMAC is keyless
+      and does not require additional protection against side channel attacks (SCA).
+      Consequently, in an implementation that has to protect the HopMAC key
+      against SCA only the outer call does need protection,
+      and this amounts to a single execution of the underlying permutation.</t>
   </section>
 
 <!--
@@ -612,8 +631,9 @@
       <author initials="M." surname="Peeters" fullname="Michael Peeters"/>
       <author initials="G." surname="Van Assche" fullname="Gilles Van Assche"/>
       <author initials="R." surname="Van Keer" fullname="Ronny Van Keer"/>
-      <date month="August" year="2016"/>
+      <date month="July" year="2018"/>
     </front>
+    <seriesInfo name="WWW" value="https://link.springer.com/chapter/10.1007/978-3-319-93387-0_21"/>
     <seriesInfo name="WWW" value="http://eprint.iacr.org/2016/770.pdf"/>
   </reference>
 
@@ -624,8 +644,9 @@
       <author initials="J." surname="Daemen" fullname="Joan Daemen"/>
       <author initials="M." surname="Peeters" fullname="Michael Peeters"/>
       <author initials="G." surname="Van Assche" fullname="Gilles Van Assche"/>
-      <date month="April" year="2013"/>
+      <date month="June" year="2014"/>
     </front>
+    <seriesInfo name="WWW" value="https://link.springer.com/chapter/10.1007/978-3-319-07536-5_14"/>
     <seriesInfo name="WWW" value="http://eprint.iacr.org/2013/231.pdf"/>
   </reference>
 
