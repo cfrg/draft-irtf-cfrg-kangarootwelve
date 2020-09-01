@@ -646,8 +646,8 @@
       <author initials="G." surname="Van Assche" fullname="Gilles Van Assche"/>
       <date month="June" year="2014"/>
     </front>
-    <seriesInfo name="WWW" value="http://eprint.iacr.org/2013/231.pdf"/>
     <seriesInfo name="WWW" value="https://link.springer.com/chapter/10.1007/978-3-319-07536-5_14"/>
+    <seriesInfo name="WWW" value="http://eprint.iacr.org/2013/231.pdf"/>
   </reference>
 
   <reference anchor="KECCAK_CRYPTANALYSIS">
