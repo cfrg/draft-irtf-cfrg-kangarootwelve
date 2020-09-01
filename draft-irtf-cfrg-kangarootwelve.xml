@@ -566,19 +566,22 @@
     <t>Furthermore, when the output length is at least 256 bits,
       KangarooTwelve achieves NIST's post-quantum security level 2 <xref target="NISTPQ"/>.</t>
 
-    <t>KangarooTwelve SHOULD NOT be used in an HMAC construction which was designed 
-    specifically for Merkle-Damgard hash functions with length-extension properties.</t>
-
     <t>Implementing a MAC with KangarooTwelve SHOULD use a HASH-then-MAC construction.
       This document recommends a method called HopMAC, defined as follows:</t>
-    <t>
-    <figure>
+
+    <t><figure>
       <artwork><![CDATA[   HopMAC(Key, M, C, L) = K12(Key, K12(M, C, 32), L) ]]></artwork>
       </figure></t>
-      <t>
-      HopMAC provides a separation between an unkeyed evaluation at full
-      speed without worrying about side-channel attacks (SCA) and a short
-      keyed evaluation that can be more easily protected against SCA.</t> 
+
+    <t>Similarly to HMAC, HopMAC consists of two calls: an inner call compressing the
+      message M and the optional customization string C to a digest,
+      and an outer call computing the tag from the key and the digest.</t>
+
+    <t>Unlike HMAC, the inner call to KangarooTwelve in HopMAC is keyless
+      and does not require additional protection against side channel attacks (SCA).
+      Consequently, in an implementation that has to protect the HopMAC key
+      against SCA only the outer call does need protection,
+      and this amounts to a single execution of the underlying permutation.</t>
   </section>
 
 <!--
