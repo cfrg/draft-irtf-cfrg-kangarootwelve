@@ -219,18 +219,18 @@
     <t>By default, the Customization string is the empty string. For an API that
     does not support a customization string input, C MUST be the empty string.</t>
 
-    <section title="Inner function KeccakTwelve">
-      <t>The inner function KeccakTwelve makes use of the permutation
+    <section title="Inner function F">
+      <t>The inner function F makes use of the permutation
       Keccak-p[1600,n_r=12], i.e., a version of the permutation Keccak-f[1600]
       used in SHAKE and SHA-3 instances reduced to its last n_r=12 rounds and
       specified in FIPS 202, sections 3.3 and 3.4 <xref target="FIPS202"></xref>.
       KP denotes this permutation.</t>
 
-      <t>KeccakTwelve is a sponge function calling this permutation KP with a rate of 168 bytes
-      or 1344 bits. It follows that KeccakTwelve has a capacity of 1600 - 1344 = 256 bits
+      <t>F is a sponge function calling this permutation KP with a rate of 168 bytes
+      or 1344 bits. It follows that F has a capacity of 1600 - 1344 = 256 bits
       or 32 bytes.</t>
 
-      <t>The sponge function KeccakTwelve takes:<list style="hanging">
+      <t>The sponge function F takes:<list style="hanging">
         <t hangText="input"> byte-string of positive length, the input bytes and</t>
         <t hangText="outputByteLen"> positive integer, the length of the output in bytes</t>
       </list></t>
@@ -261,7 +261,7 @@
       <t>A pseudocode version is available as follows:</t>
 
       <t><figure><artwork><![CDATA[
-  KeccakTwelve(input, outputByteLen):
+  F(input, outputByteLen):
     offset = 0
     state = `00`^200
 
@@ -290,9 +290,9 @@
     end]]></artwork></figure></t>
     </section>
 
-    <section title="Tree hashing over KeccakTwelve">
+    <section title="Tree hashing over F">
 
-      <t>On top of the sponge function KeccakTwelve, KangarooTwelve uses a
+      <t>On top of the sponge function F, KangarooTwelve uses a
       Sakura-compatible tree hash mode <xref target="SAKURA"></xref>.
       First, merge M and the OPTIONAL C to a single input string S in a
       reversible way. length_encode( |C| ) gives the length in bytes of C as a
@@ -313,8 +313,6 @@
       In order to be optimally efficient, this computation SHOULD exploit the
       parallelism available on the platform such as SIMD instructions.</t>
 
-      <t>Due to space constraints, KeccakTwelve is abbreviated as F.</t>
-
       <t><figure><artwork><![CDATA[
              CV_i    = F( S_i||`0B`, 32 )]]></artwork></figure></t>
 
@@ -334,7 +332,7 @@
 
       <t>Finally, KangarooTwelve output is retrieved:
         <list style="symbols">
-          <t>If |S| &lt;= 8192 bytes, from KeccakTwelve( FinalNode||`07`, L )</t>
+          <t>If |S| &lt;= 8192 bytes, from F( FinalNode||`07`, L )</t>
         </list></t>
 
         <t><figure>
@@ -342,7 +340,7 @@
         </artwork></figure></t>
 
         <t><list style="symbols">
-          <t>Otherwise from KeccakTwelve( FinalNode||`06`, L )</t>
+          <t>Otherwise from F( FinalNode||`06`, L )</t>
         </list></t>
 
       <t><figure>
@@ -547,13 +545,13 @@
     <t>
     To be more precise, KangarooTwelve is made of two layers:
     <list style="symbols">
-    <t>The inner function KeccakTwelve. This layer relies on cryptanalysis.
-    KeccakTwelve is exactly Keccak[r=1344, c=256] (as in SHAKE128)
+    <t>The inner function F. This layer relies on cryptanalysis.
+    KangarooTwelve's F function is exactly Keccak[r=1344, c=256] (as in SHAKE128)
     reduced to 12 rounds. Any reduced-round cryptanalysis on Keccak
-    is also a reduced-round cryptanalysis of KeccakTwelve
+    is also a reduced-round cryptanalysis of KangarooTwelve's F 
     (provided the number of rounds attacked is not higher than 12).</t>
-    <t>The tree hashing over KeccakTwelve. This layer is a mode on top
-    of KeccakTwelve that does not introduce any vulnerability thanks to
+    <t>The tree hashing over F. This layer is a mode on top
+    of F that does not introduce any vulnerability thanks to
     the use of Sakura coding proven secure in <xref target="SAKURA"/>.</t>
     </list></t>
     <t>This reasoning is detailed and formalized in <xref target="K12"/>.</t>
