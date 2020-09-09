@@ -256,7 +256,7 @@
 
       <t>This definition of the sponge construction uses a pad0*1 padding and
       assumes a at least one-byte-long input where the last byte is in the `01`-`7F` range.
-      This is the case in KangarooTwelve, where the delimited suffix and serve as domain
+      This is the case in KangarooTwelve, where the delimited suffix serves as domain
       separation and integrates the first bit of pad10*1 as defined in <xref target="K12"></xref>.</t>
 
       <t>A pseudocode version is available as follows:</t>
