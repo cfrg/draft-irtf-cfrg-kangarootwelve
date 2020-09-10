@@ -255,7 +255,7 @@
       bytes are obtained, interleaved with the application of KP to the state.</t>
 
       <t>The definition of the function F equivalently implements the pad10*1 rule.
-      It assumes a at least one-byte-long input where the last byte is in the `01`-`7F` range,
+      It assumes an at least one-byte-long input where the last byte is in the `01`-`7F` range,
       and this is the case in KangarooTwelve.
       This last byte serves as domain separation and integrates the first bit of padding
       of the pad10*1 rule (hence it cannot be `00`).
