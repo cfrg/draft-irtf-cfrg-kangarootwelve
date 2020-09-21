@@ -5,18 +5,18 @@
 Crypto Forum                                                  B. Viguier
 Internet-Draft                                        Radboud University
 Intended status: Informational                              D. Wong, Ed.
-Expires: September 13, 2020                                     Facebook
+Expires: March 25, 2021                                         Facebook
                                                       G. Van Assche, Ed.
                                                       STMicroelectronics
                                                             Q. Dang, Ed.
                                                                     NIST
                                                           J. Daemen, Ed.
                                                       Radboud University
-                                                          March 12, 2020
+                                                      September 21, 2020
 
 
                              KangarooTwelve
-                   draft-irtf-cfrg-kangarootwelve-02
+                   draft-irtf-cfrg-kangarootwelve-03
 
 Abstract
 
@@ -46,16 +46,16 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on September 13, 2020.
+   This Internet-Draft will expire on March 25, 2021.
 
 
 
 
 
 
-Viguier, et al.        Expires September 13, 2020               [Page 1]
+Viguier, et al.          Expires March 25, 2021                 [Page 1]
 
-Internet-Draft               KangarooTwelve                   March 2020
+Internet-Draft               KangarooTwelve               September 2020
 
 
 Copyright Notice
@@ -103,15 +103,15 @@ Table of Contents
    The SHA-3 functions process data in a serial manner and are unable to
    optimally exploit parallelism available in modern CPU architectures.
    Similar to ParallelHash [SP800-185], KangarooTwelve splits the input
-   message in fragments to exploit available parallelism.  It then
+   message into fragments to exploit available parallelism.  It then
    applies an inner hash function F on each of them separately before
    applying F again on the concatenation of the digests.  It makes use
 
 
 
-Viguier, et al.        Expires September 13, 2020               [Page 2]
+Viguier, et al.          Expires March 25, 2021                 [Page 2]
 
-Internet-Draft               KangarooTwelve                   March 2020
+Internet-Draft               KangarooTwelve               September 2020
 
 
    of Sakura coding for ensuring soundness of the tree hashing mode
@@ -132,7 +132,7 @@ Internet-Draft               KangarooTwelve                   March 2020
       customization string.
 
    o  Unlike any [FIPS202] and [SP800-185] functions but ParallelHash,
-      KangarooTwelve splits the input message in fragments to exploit
+      KangarooTwelve splits the input message into fragments to exploit
       available parallelism.
 
    o  Unlike ParallelHash, KangarooTwelve does not have overhead when
@@ -165,17 +165,18 @@ Internet-Draft               KangarooTwelve                   March 2020
 
 
 
-Viguier, et al.        Expires September 13, 2020               [Page 3]
+Viguier, et al.          Expires March 25, 2021                 [Page 3]
 
-Internet-Draft               KangarooTwelve                   March 2020
+Internet-Draft               KangarooTwelve               September 2020
 
 
    a||b  denotes the concatenation of two strings a and b.  For example,
       `10`||`F1` = `10 F1`
 
-   s[n:m]  denotes the selection of bytes from n to m exclusive of a
-      string s.  For example, for s = `A5 C6 D7`, s[0:1] = `A5` and
-      s[1:3] = `C6 D7`.
+   s[n:m]  denotes the selection of bytes from n (inclusive) to m
+      (exclusive) of a string s.  The indexing of a byte-string starts
+      at 0.  For example, for s = `A5 C6 D7`, s[0:1] = `A5` and s[1:3] =
+      `C6 D7`.
 
    s[n:]  denotes the selection of bytes from n to the end of a string
       s.  For example, for s = `A5 C6 D7`, s[0:] = `A5 C6 D7` and s[2:]
@@ -193,7 +194,7 @@ Internet-Draft               KangarooTwelve                   March 2020
 
    x-=y  denotes x takes the value x - y.
 
-   x**y  denotes x multiplied by itself y times.
+   x**y  denotes the exponentiation of x by y.
 
 2.  Specifications
 
@@ -204,7 +205,7 @@ Internet-Draft               KangarooTwelve                   March 2020
 
    C  byte-string, is an OPTIONAL Customization string and
 
-   L  positive integer, the number of output bytes requested.
+   L  positive integer, the requested number of output bytes.
 
    The Customization string MAY serve as domain separation.  It is
    typically a short string such as a name or an identifier (e.g.  URI,
@@ -220,10 +221,9 @@ Internet-Draft               KangarooTwelve                   March 2020
 
 
 
-
-Viguier, et al.        Expires September 13, 2020               [Page 4]
+Viguier, et al.          Expires March 25, 2021                 [Page 4]
 
-Internet-Draft               KangarooTwelve                   March 2020
+Internet-Draft               KangarooTwelve               September 2020
 
 
 2.1.  Inner function F
@@ -240,14 +240,18 @@ Internet-Draft               KangarooTwelve                   March 2020
 
    The sponge function F takes:
 
-   input  byte-string, the input bytes and
+   input  byte-string of positive length, the input bytes and
 
    outputByteLen  positive integer, the length of the output in bytes
 
-   First the message is padded with zeroes to the closest multiple of
-   168 bytes.  Then a byte `80` is XORed to the last byte of the padded
-   message.  and the resulting string is split into a sequence of
+   First non-multiple of 168-bytes-length inputs are padded with zeroes
+   to the next multiple of 168 bytes while inputs multiple of 168 bytes
+   are kept as is.  Then a byte `80` is XORed to the last byte of the
+   padded message and the resulting string is split into a sequence of
    168-byte blocks.
+
+   Inputs of length 0 bytes do not happen as a result of the tree
+   hashing mode defined in section 2.2.
 
    As defined by the sponge construction, the process operates on a
    state and consists of two phases: the absorbing phase that processes
@@ -262,25 +266,23 @@ Internet-Draft               KangarooTwelve                   March 2020
    bytes are obtained, interleaved with the application of KP to the
    state.
 
-   This definition of the sponge construction assumes a at least one-
-   byte-long input where the last byte is in the `01`-`7F` range.  This
-   is the case in KangarooTwelve.
+   The definition of the function F equivalently implements the pad10*1
+   rule.  It assumes an at least one-byte-long input where the last byte
+   is in the `01`-`7F` range, and this is the case in KangarooTwelve.
+   This last byte serves as domain separation and integrates the first
+   bit of padding of the pad10*1 rule (hence it cannot be `00`).
+   Additionally, it must leave room for the second bit of padding (hence
+   it cannot have the MSB set to 1), should it be the last byte of the
+   block.  For more details, refer to Section 6.1 of [K12].
+
+
+
+Viguier, et al.          Expires March 25, 2021                 [Page 5]
+
+Internet-Draft               KangarooTwelve               September 2020
+
 
    A pseudocode version is available as follows:
-
-
-
-
-
-
-
-
-
-
-Viguier, et al.        Expires September 13, 2020               [Page 5]
-
-Internet-Draft               KangarooTwelve                   March 2020
-
 
      F(input, outputByteLen):
        offset = 0
@@ -315,8 +317,7 @@ Internet-Draft               KangarooTwelve                   March 2020
    On top of the sponge function F, KangarooTwelve uses a Sakura-
    compatible tree hash mode [SAKURA].  First, merge M and the OPTIONAL
    C to a single input string S in a reversible way. length_encode( |C|
-   ) gives the length in bytes of C as a byte-string. length_encode( x )
-   may be abbreviated as l_e( x ).  See Section 2.3.
+   ) gives the length in bytes of C as a byte-string.  See Section 2.3.
 
              S = M || C || length_encode( |C| )
 
@@ -328,15 +329,17 @@ Internet-Draft               KangarooTwelve                   March 2020
 
    From S_1 .. S_(n-1), compute the 32-byte Chaining Values CV_1 ..
    CV_(n-1).  In order to be optimally efficient, this computation
+
+
+
+
+Viguier, et al.          Expires March 25, 2021                 [Page 6]
+
+Internet-Draft               KangarooTwelve               September 2020
+
+
    SHOULD exploit the parallelism available on the platform such as SIMD
    instructions.
-
-
-
-Viguier, et al.        Expires September 13, 2020               [Page 6]
-
-Internet-Draft               KangarooTwelve                   March 2020
-
 
                 CV_i    = F( S_i||`0B`, 32 )
 
@@ -371,7 +374,8 @@ Internet-Draft               KangarooTwelve                   March 2020
              +--------------+
 
    The following figure illustrates the computation flow of
-   KangarooTwelve for |S| > 8192 bytes:
+   KangarooTwelve for |S| > 8192 bytes and where length_encode( x ) is
+   abbreviated as l_e( x ):
 
 
 
@@ -385,46 +389,42 @@ Internet-Draft               KangarooTwelve                   March 2020
 
 
 
-
-
-
-
-Viguier, et al.        Expires September 13, 2020               [Page 7]
+Viguier, et al.          Expires March 25, 2021                 [Page 7]
 
-Internet-Draft               KangarooTwelve                   March 2020
+Internet-Draft               KangarooTwelve               September 2020
 
 
-                                +--------------+
-                                |     S_0      |
-                                +--------------+
-                                      ||
-                                +--------------+
-                                | `03`||`00`^7 |
-                                +--------------+
-                                      ||
-   +---------+  F(..||`0B`,32)  +--------------+
-   |   S_1   |----------------->|     CV_1     |
-   +---------+                  +--------------+
-                                      ||
-   +---------+  F(..||`0B`,32)  +--------------+
-   |   S_2   |----------------->|     CV_2     |
-   +---------+                  +--------------+
-                                      ||
-             ...                      ...
-                                      ||
-   +---------+  F(..||`0B`,32)  +--------------+
-   | S_(n-1) |----------------->|   CV_(n-1)   |
-   +---------+                  +--------------+
-                                      ||
-                                +--------------+
-                                |  l_e( n-1 )  |
-                                +--------------+
-                                      ||
-                                +------------+  F(..||`06`, L)
-                                |   `FF FF`  |----------------->  output
-                                +------------+
+                              +--------------+
+                              |     S_0      |
+                              +--------------+
+                                    ||
+                              +--------------+
+                              | `03`||`00`^7 |
+                              +--------------+
+                                    ||
+ +---------+  F(..||`0B`,32)  +--------------+
+ |   S_1   |----------------->|     CV_1     |
+ +---------+                  +--------------+
+                                    ||
+ +---------+  F(..||`0B`,32)  +--------------+
+ |   S_2   |----------------->|     CV_2     |
+ +---------+                  +--------------+
+                                    ||
+           ...                      ...
+                                    ||
+ +---------+  F(..||`0B`,32)  +--------------+
+ | S_(n-1) |----------------->|   CV_(n-1)   |
+ +---------+                  +--------------+
+                                    ||
+                              +--------------+
+                              |  l_e( n-1 )  |
+                              +--------------+
+                                    ||
+                              +--------------+  F(..||`06`, L)
+                              |   `FF FF`    |----------------->  output
+                              +--------------+
 
-   We provide a pseudocode version in Appendix A.2.
+   A pseudocode version is provided in Appendix A.2.
 
    The table below gathers the values of the domain separation bytes
    used by the tree hash mode:
@@ -445,9 +445,9 @@ Internet-Draft               KangarooTwelve                   March 2020
 
 
 
-Viguier, et al.        Expires September 13, 2020               [Page 8]
+Viguier, et al.          Expires March 25, 2021                 [Page 8]
 
-Internet-Draft               KangarooTwelve                   March 2020
+Internet-Draft               KangarooTwelve               September 2020
 
 
 2.3.  length_encode( x )
@@ -501,9 +501,9 @@ Internet-Draft               KangarooTwelve                   March 2020
 
 
 
-Viguier, et al.        Expires September 13, 2020               [Page 9]
+Viguier, et al.          Expires March 25, 2021                 [Page 9]
 
-Internet-Draft               KangarooTwelve                   March 2020
+Internet-Draft               KangarooTwelve               September 2020
 
 
        Pattern for a length of 17**2 bytes:
@@ -557,9 +557,9 @@ Internet-Draft               KangarooTwelve                   March 2020
 
 
 
-Viguier, et al.        Expires September 13, 2020              [Page 10]
+Viguier, et al.          Expires March 25, 2021                [Page 10]
 
-Internet-Draft               KangarooTwelve                   March 2020
+Internet-Draft               KangarooTwelve               September 2020
 
 
      KangarooTwelve(M=ptn(17**3 bytes), C=`00`^0, 32):
@@ -604,7 +604,7 @@ Internet-Draft               KangarooTwelve                   March 2020
    implementation guide for the KangarooTwelve eXtendable Output
    Function.  It relies on the cryptanalysis of Keccak and provides with
    the same security strength as SHAKE128, i.e., 128 bits of security
-   against all attacks
+   against all attacks.
 
    To be more precise, KangarooTwelve is made of two layers:
 
@@ -613,9 +613,9 @@ Internet-Draft               KangarooTwelve                   March 2020
 
 
 
-Viguier, et al.        Expires September 13, 2020              [Page 11]
+Viguier, et al.          Expires March 25, 2021                [Page 11]
 
-Internet-Draft               KangarooTwelve                   March 2020
+Internet-Draft               KangarooTwelve               September 2020
 
 
       in SHAKE128) reduced to 12 rounds.  Any reduced-round
@@ -641,9 +641,38 @@ Internet-Draft               KangarooTwelve                   March 2020
    KangarooTwelve achieves NIST's post-quantum security level 2
    [NISTPQ].
 
+   Implementing a MAC with KangarooTwelve SHOULD use a HASH-then-MAC
+   construction.  This document recommends a method called HopMAC,
+   defined as follows:
+
+      HopMAC(Key, M, C, L) = K12(Key, K12(M, C, 32), L)
+
+   Similarly to HMAC, HopMAC consists of two calls: an inner call
+   compressing the message M and the optional customization string C to
+   a digest, and an outer call computing the tag from the key and the
+   digest.
+
+   Unlike HMAC, the inner call to KangarooTwelve in HopMAC is keyless
+   and does not require additional protection against side channel
+   attacks (SCA).  Consequently, in an implementation that has to
+   protect the HopMAC key against SCA only the outer call does need
+   protection, and this amounts to a single execution of the underlying
+   permutation.
+
 6.  References
 
 6.1.  Normative References
+
+
+
+
+
+
+
+Viguier, et al.          Expires March 25, 2021                [Page 12]
+
+Internet-Draft               KangarooTwelve               September 2020
+
 
    [FIPS202]  National Institute of Standards and Technology, "FIPS PUB
               202 - SHA-3 Standard: Permutation-Based Hash and
@@ -662,24 +691,13 @@ Internet-Draft               KangarooTwelve                   March 2020
               WWW https://doi.org/10.6028/NIST.SP.800-185, December
               2016.
 
-
-
-
-
-
-
-
-Viguier, et al.        Expires September 13, 2020              [Page 12]
-
-Internet-Draft               KangarooTwelve                   March 2020
-
-
 6.2.  Informative References
 
    [K12]      Bertoni, G., Daemen, J., Peeters, M., Van Assche, G., and
               R. Van Keer, "KangarooTwelve: fast hashing based on
-              Keccak-p", WWW http://eprint.iacr.org/2016/770.pdf, August
-              2016.
+              Keccak-p", WWW https://link.springer.com/
+              chapter/10.1007/978-3-319-93387-0_21,
+              WWW http://eprint.iacr.org/2016/770.pdf, July 2018.
 
    [KECCAK_CRYPTANALYSIS]
               Keccak Team, "Summary of Third-party cryptanalysis of
@@ -694,8 +712,10 @@ Internet-Draft               KangarooTwelve                   March 2020
               2016.pdf, December 2016.
 
    [SAKURA]   Bertoni, G., Daemen, J., Peeters, M., and G. Van Assche,
-              "Sakura: a flexible coding for tree hashing",
-              WWW http://eprint.iacr.org/2013/231.pdf, April 2013.
+              "Sakura: a flexible coding for tree hashing", WWW
+              https://link.springer.com/
+              chapter/10.1007/978-3-319-07536-5_14,
+              WWW http://eprint.iacr.org/2013/231.pdf, June 2014.
 
    [XKCP]     Bertoni, G., Daemen, J., Peeters, M., Van Assche, G., and
               R. Van Keer, "eXtended Keccak Code Package",
@@ -705,29 +725,9 @@ Internet-Draft               KangarooTwelve                   March 2020
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Viguier, et al.        Expires September 13, 2020              [Page 13]
+Viguier, et al.          Expires March 25, 2021                [Page 13]
 
-Internet-Draft               KangarooTwelve                   March 2020
+Internet-Draft               KangarooTwelve               September 2020
 
 
 Appendix A.  Pseudocode
@@ -781,9 +781,9 @@ A.1.  Keccak-p[1600,n_r=12]
 
 
 
-Viguier, et al.        Expires September 13, 2020              [Page 14]
+Viguier, et al.          Expires March 25, 2021                [Page 14]
 
-Internet-Draft               KangarooTwelve                   March 2020
+Internet-Draft               KangarooTwelve               September 2020
 
 
        # chi
@@ -837,9 +837,9 @@ A.2.  KangarooTwelve
 
 
 
-Viguier, et al.        Expires September 13, 2020              [Page 15]
+Viguier, et al.          Expires March 25, 2021                [Page 15]
 
-Internet-Draft               KangarooTwelve                   March 2020
+Internet-Draft               KangarooTwelve               September 2020
 
 
 Authors' Addresses
@@ -893,4 +893,4 @@ Authors' Addresses
 
 
 
-Viguier, et al.        Expires September 13, 2020              [Page 16]
+Viguier, et al.          Expires March 25, 2021                [Page 16]
