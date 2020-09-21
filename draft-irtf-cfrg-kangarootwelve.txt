@@ -16,7 +16,7 @@ Expires: March 25, 2021                                         Facebook
 
 
                              KangarooTwelve
-                   draft-irtf-cfrg-kangarootwelve-03
+                   draft-irtf-cfrg-kangarootwelve-04
 
 Abstract
 
