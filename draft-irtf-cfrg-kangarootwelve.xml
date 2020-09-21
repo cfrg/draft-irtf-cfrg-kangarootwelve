@@ -235,9 +235,9 @@
         <t hangText="outputByteLen"> positive integer, the length of the output in bytes</t>
       </list></t>
 
-      <t>First non-multiple of 168-bytes-length inputs are padded with zeroes to the next 
+      <t>First non-multiple of 168-bytes-length inputs are padded with zeroes to the next
       multiple of 168 bytes while inputs multiple of 168 bytes are kept as is.
-      Then a byte `80` is XORed to the last byte of the padded message 
+      Then a byte `80` is XORed to the last byte of the padded message
       and the resulting string is split into a sequence of 168-byte blocks.</t>
 
       <t>Inputs of length 0 bytes do not happen as a result of the tree hashing mode defined in section 2.2.</t>
@@ -254,9 +254,14 @@
       of the state, repeated as many times as necessary until outputByteLen
       bytes are obtained, interleaved with the application of KP to the state.</t>
 
-      <t>This definition of the sponge construction assumes a at least
-      one-byte-long input where the last byte is in the `01`-`7F` range.
-      This is the case in KangarooTwelve.</t>
+      <t>The definition of the function F equivalently implements the pad10*1 rule.
+      It assumes an at least one-byte-long input where the last byte is in the `01`-`7F` range,
+      and this is the case in KangarooTwelve.
+      This last byte serves as domain separation and integrates the first bit of padding
+      of the pad10*1 rule (hence it cannot be `00`).
+      Additionally, it must leave room for the second bit of padding
+      (hence it cannot have the MSB set to 1), should it be the last byte of the block.
+      For more details, refer to Section 6.1 of <xref target="K12"></xref>.</t>
 
       <t>A pseudocode version is available as follows:</t>
 
@@ -389,7 +394,7 @@
                              |   `FF FF`    |----------------->  output
                              +--------------+]]></artwork></figure></t>
 
-      <t>We provide a pseudocode version in <xref target="K_PC"/>.</t>
+      <t>A pseudocode version is provided in <xref target="K_PC"/>.</t>
 
       <t>The table below gathers the values of the domain separation
       bytes used by the tree hash mode:</t>
@@ -548,7 +553,7 @@
     <t>The inner function F. This layer relies on cryptanalysis.
     KangarooTwelve's F function is exactly Keccak[r=1344, c=256] (as in SHAKE128)
     reduced to 12 rounds. Any reduced-round cryptanalysis on Keccak
-    is also a reduced-round cryptanalysis of KangarooTwelve's F 
+    is also a reduced-round cryptanalysis of KangarooTwelve's F
     (provided the number of rounds attacked is not higher than 12).</t>
     <t>The tree hashing over F. This layer is a mode on top
     of F that does not introduce any vulnerability thanks to
