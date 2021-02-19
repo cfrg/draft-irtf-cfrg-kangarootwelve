@@ -11,7 +11,7 @@
 <?rfc comments="yes"?>
 <?rfc inline="yes"?>
 
-<rfc category="info" docName="draft-irtf-cfrg-kangarootwelve-04" ipr="trust200902">
+<rfc category="info" docName="draft-irtf-cfrg-kangarootwelve-05" ipr="trust200902">
 <front>
 
     <title abbrev="KangarooTwelve">KangarooTwelve</title>
@@ -28,7 +28,7 @@
           <city>Nijmegen</city>
           <country>The Netherlands</country>
         </postal>
-        <email>b.viguier@cs.ru.nl</email>
+        <email>cs.ru.nl@viguier.nl</email>
       </address>
     </author>
 
@@ -75,7 +75,7 @@
 
     <!-- month and day will be generated automatically by XL2RFC;
     be sure the year is current.-->
-    <date  year="2020" />
+    <date  year="2021" />
 
     <!--WG name at the upperleft corner of the doc,
     IETF is fine for non-WG IETF submissions -->

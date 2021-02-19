@@ -14,4 +14,4 @@ report.xml
 *.upload
 venv/
 lib
-draft-irtf-cfrg-kangarootwelve.xml
+!draft-irtf-cfrg-kangarootwelve.xml
