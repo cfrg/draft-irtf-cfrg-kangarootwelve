@@ -11,7 +11,7 @@
 <?rfc comments="yes"?>
 <?rfc inline="yes"?>
 
-<rfc category="info" docName="draft-irtf-cfrg-kangarootwelve-06" ipr="trust200902">
+<rfc category="info" docName="draft-irtf-cfrg-kangarootwelve-07" ipr="trust200902">
 <front>
 
     <title abbrev="KangarooTwelve">KangarooTwelve</title>
@@ -75,7 +75,7 @@
 
     <!-- month and day will be generated automatically by XL2RFC;
     be sure the year is current.-->
-    <date  year="2021" />
+    <date  year="2022" />
 
     <!--WG name at the upperleft corner of the doc,
     IETF is fine for non-WG IETF submissions -->
