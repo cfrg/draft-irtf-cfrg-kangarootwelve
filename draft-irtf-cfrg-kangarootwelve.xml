@@ -11,7 +11,7 @@
 <?rfc comments="yes"?>
 <?rfc inline="yes"?>
 
-<rfc category="info" docName="draft-irtf-cfrg-kangarootwelve-07" ipr="trust200902">
+<rfc category="info" docName="draft-irtf-cfrg-kangarootwelve-08" ipr="trust200902">
 <front>
 
     <title abbrev="KangarooTwelve">KangarooTwelve</title>
@@ -21,11 +21,11 @@
     <!-- see RFC2223 for guidelines regarding author names -->
 
     <author fullname="Beno&icirc;t Viguier" initials="B" surname="Viguier">
-      <organization>Radboud University</organization>
+      <organization>ABN AMRO Bank</organization>
       <address>
         <postal>
-          <street>Toernooiveld 212</street>
-          <city>Nijmegen</city>
+          <street>Groenelaan 2</street>
+          <city>Amstelveen</city>
           <country>The Netherlands</country>
         </postal>
         <email>cs.ru.nl@viguier.nl</email>
@@ -33,7 +33,7 @@
     </author>
 
     <author fullname="David Wong" initials="D" surname="Wong" role="editor">
-      <organization>Facebook</organization>
+      <organization>O(1) Labs</organization>
       <address>
         <email>davidwong.crypto@gmail.com</email>
       </address>
@@ -589,8 +589,8 @@
       and this amounts to a single execution of the underlying permutation.</t>
 
     <t>In any case, KangarooTwelve MAY be used to compute a MAC with the key
-      reversibly prepended or appended to the input. For instance, one MAY 
-      compute a MAC on short messages simply calling KangarooTwelve with the 
+      reversibly prepended or appended to the input. For instance, one MAY
+      compute a MAC on short messages simply calling KangarooTwelve with the
       key as the customization string, i.e., MAC = K12(M, Key, L).</t>
   </section>
 
