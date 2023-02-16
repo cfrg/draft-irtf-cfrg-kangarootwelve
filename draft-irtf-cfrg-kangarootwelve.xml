@@ -90,12 +90,13 @@
     <keyword>eXtendable Output Function</keyword>
 
   <abstract>
-  <t>This document defines two eXtendable Output Functions (XOF),
-  hash functions with output of arbitrary length, named TurboSHAKE and KangarooTwelve.
-  The first is a round-reduced version of SHAKE,
-  while the later provides an efficient and secure hashing primitive able to
-  exploit the parallelism of the implementation in a scalable way.
-  It uses tree hashing over the underlying primitive TurboSHAKE128.</t>
+  <t>This document defines three eXtendable Output Functions (XOF),
+  hash functions with output of arbitrary length, named TurboSHAKE128,
+  TurboSHAKE256 and KangarooTwelve.</t>
+
+  <t>All three functions provide efficient and secure hashing primitive,
+  and the later is able to exploit the parallelism of the implementation
+  in a scalable way.</t>
 
   <t>This document builds up on the definitions of the permutations and of the
   sponge construction in [FIPS 202], and is meant to serve as a stable reference
@@ -106,40 +107,39 @@
 <middle>
   <section title="Introduction">
 
-    <t>This document defines the TurboSHAKE <xref target="TURBOSHAKE"></xref> and
+    <t>This document defines the TurboSHAKE128, TurboSHAKE256 <xref target="TURBOSHAKE"></xref> and
     KangarooTwelve <xref target="K12"></xref> eXtendable Output Functions (XOF),
     i.e. a generalization of a hash function that can return an output of arbitrary length.
-
-    Both TurboSHAKE and KangarooTwelve are based on a Keccak-p permutation specified in <xref
+    Both TurboSHAKE128 and TurboSHAKE256 are based on a Keccak-p permutation specified in <xref
     target="FIPS202"></xref> and have a higher speed than SHAKE and SHA-3.</t>
 
-    <t>TurboSHAKE is a sponge function which makes use of a 12-round-reduced
-    version of the permutation Keccak-f used in SHA-3. Similarly to SHAKE,
-    it comes in two versions TurboSHAKE128 and TurboSHAKE256 depending of
-    the margin of security required. The number of round being makes
-    TurboSHAKE roughtly two times faster than their SHA-3 equivalent.</t>
+    <t>TurboSHAKE is a sponge function which makes use of Keccak-p[n_r=12,b=1600], a 12-round-reduced
+    version of the permutation used in SHA-3. Similarly to SHAKE, it proposes two security strength:
+    128 bit for TurboSHAKE128 and 256 bits for TurboSHAKE256.
+    The number of round being halved of SHAKE makes TurboSHAKE roughtly two-times
+    faster than their SHA-3 equivalent.</t>
 
     <t>The SHA-3 functions process data in a serial manner and are unable to
     optimally exploit parallelism available in modern CPU architectures.
     Similar to ParallelHash <xref target="SP800-185"></xref>, KangarooTwelve splits
     the input message into fragments to exploit available parallelism. It then
     applies TurboSHAKE128 on each of them separately before applying
-    TurboSHAKE128 again on the concatenation of the digests.
+    TurboSHAKE128 again on the concatenation of the first fragment and the digests.
     It makes use of Sakura coding for ensuring soundness of the tree hashing
     mode <xref target="SAKURA"/>.
-    Similarly, the TurboSHAKE speed-up over SHA-3 directly translates in KangarooTwelve,
+    The TurboSHAKE speed-up over SHA-3 directly translates in KangarooTwelve,
     making it faster than ParallelHash.</t>
 
-    <t>The security of both TurboSHAKE and KangarooTwelve builds up on the
+    <t>The security of both TurboSHAKE128, TurboSHAKE256 and KangarooTwelve builds up on the
     scrutiny that Keccak has received since its
     publication <xref target="KECCAK_CRYPTANALYSIS"/>.</t>
 
     <t>With respect to <xref target="FIPS202"></xref> and <xref target="SP800-185"></xref>
-    functions, TurboSHAKE and KangarooTwelve feature the following advantages:</t>
+    functions, TurboSHAKE128, TurboSHAKE256 and KangarooTwelve feature the following advantages:</t>
 
     <t><list style="symbols">
-      <t>Unlike SHA3-224, SHA3-256, SHA3-384, SHA3-512, TurboSHAKE and KangarooTwelve have an
-    extendable output.</t>
+      <t>Unlike SHA3-224, SHA3-256, SHA3-384, SHA3-512; TurboSHAKE and
+      KangarooTwelve have an extendable output.</t>
 
     <t>Unlike any <xref target="FIPS202"></xref> defined function, similarly to
     functions defined in <xref target="SP800-185"></xref>, KangarooTwelve
@@ -152,11 +152,11 @@
     <t>Unlike ParallelHash, KangarooTwelve does not have overhead when
     processing short messages.</t>
 
-    <t>The Keccak-f permutation in TurboSHAKE has half the number of rounds
-    of the one used in SHA3, making it faster than any function defined in
-    <xref target="FIPS202"></xref>. KangarooTwelve immediately benefits from
-    this speeds up, improving over <xref target="FIPS202"></xref>
-    and <xref target="SP800-185"></xref>.</t>
+    <t>The permutation in TurboSHAKE is Keccak-p[n_r=12] and hence has half
+    the number of rounds of the one used in SHA3, making it faster than any
+    function defined in <xref target="FIPS202"></xref>.
+    KangarooTwelve immediately benefits from this speeds up, improving over
+    <xref target="FIPS202"></xref> and <xref target="SP800-185"></xref>.</t>
     </list></t>
 
     <section title="Conventions">
@@ -226,10 +226,10 @@
     </section>
 
     <section title="Specifications">
-      <t>TurboSHAKE makes use of the permutation
-      Keccak-p[1600,n_r=12], i.e., a version of the permutation Keccak-f[1600]
-      used in SHAKE and SHA-3 instances reduced to its last n_r=12 rounds and
-      specified in FIPS 202, sections 3.3 and 3.4 <xref target="FIPS202"></xref>.
+      <t>TurboSHAKE makes use of the permutation Keccak-p[1600,n_r=12],
+      i.e., the permutation used in SHAKE and SHA-3 instances reduced
+      to its last n_r=12 rounds and specified in FIPS 202, sections
+      3.3 and 3.4 <xref target="FIPS202"></xref>.
       KP denotes this permutation.</t>
 
       <t>Similarly to SHAKE128, TurboSHAKE128 is a sponge function
