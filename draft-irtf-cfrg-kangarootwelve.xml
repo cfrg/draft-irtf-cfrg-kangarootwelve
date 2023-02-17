@@ -11,10 +11,10 @@
 <?rfc comments="yes"?>
 <?rfc inline="yes"?>
 
-<rfc category="info" docName="draft-irtf-cfrg-kangarootwelve-08" ipr="trust200902">
+<rfc category="info" docName="draft-irtf-cfrg-kangarootwelve-latest" ipr="trust200902">
 <front>
 
-    <title abbrev="KangarooTwelve">KangarooTwelve</title>
+    <title abbrev="KangarooTwelve">KangarooTwelve and TurboSHAKE</title>
 
     <!-- If the author is acting as editor, use the <role=editor> attribute-->
 
@@ -75,7 +75,7 @@
 
     <!-- month and day will be generated automatically by XL2RFC;
     be sure the year is current.-->
-    <date  year="2022" />
+    <date  year="2023" />
 
     <!--WG name at the upperleft corner of the doc,
     IETF is fine for non-WG IETF submissions -->
@@ -85,54 +85,61 @@
     <keyword>Keccak</keyword>
     <keyword>Sakura</keyword>
     <keyword>KangarooTwelve</keyword>
+    <keyword>TurboSHAKE</keyword>
     <keyword>Cryptographic Hash</keyword>
     <keyword>eXtendable Output Function</keyword>
-  <abstract>
 
-  <t>This document defines the KangarooTwelve eXtendable Output Function (XOF),
-  a hash function with output of arbitrary length.
-  It provides an efficient and secure hashing primitive, which is able to
-  exploit the parallelism of the implementation in a scalable way.
-  It uses tree hashing over a round-reduced version of SHAKE128 as underlying
-  primitive.</t>
+  <abstract>
+  <t>This document defines three eXtendable Output Functions (XOF),
+  hash functions with output of arbitrary length, named TurboSHAKE128,
+  TurboSHAKE256 and KangarooTwelve.</t>
+
+  <t>All three functions provide efficient and secure hashing primitive,
+  and the later is able to exploit the parallelism of the implementation
+  in a scalable way.</t>
 
   <t>This document builds up on the definitions of the permutations and of the
   sponge construction in [FIPS 202], and is meant to serve as a stable reference
   and an implementation guide.</t>
-
   </abstract>
 </front>
 
 <middle>
   <section title="Introduction">
 
-    <t>This document defines the KangarooTwelve eXtendable Output Function (XOF)
-    <xref target="K12"></xref>, i.e. a generalization of a hash function that
-    can return an output of arbitrary length.
-    KangarooTwelve is based on a Keccak-p permutation specified in <xref
-    target="FIPS202"></xref> and has a higher speed than SHAKE and SHA-3.</t>
+    <t>This document defines the TurboSHAKE128, TurboSHAKE256 <xref target="TURBOSHAKE"></xref> and
+    KangarooTwelve <xref target="K12"></xref> eXtendable Output Functions (XOF),
+    i.e. a generalization of a hash function that can return an output of arbitrary length.
+    Both TurboSHAKE128 and TurboSHAKE256 are based on a Keccak-p permutation specified in <xref
+    target="FIPS202"></xref> and have a higher speed than SHAKE and SHA-3.</t>
+
+    <t>TurboSHAKE is a sponge function which makes use of Keccak-p[n_r=12,b=1600], a 12-round-reduced
+    version of the permutation used in SHA-3. Similarly to SHAKE, it proposes two security strength:
+    128 bit for TurboSHAKE128 and 256 bits for TurboSHAKE256.
+    The number of round being halved of SHAKE makes TurboSHAKE roughtly two-times
+    faster than their SHA-3 equivalent.</t>
 
     <t>The SHA-3 functions process data in a serial manner and are unable to
     optimally exploit parallelism available in modern CPU architectures.
     Similar to ParallelHash <xref target="SP800-185"></xref>, KangarooTwelve splits
     the input message into fragments to exploit available parallelism. It then
-    applies an inner hash function F on each of them separately before applying
-    F again on the concatenation of the digests.
+    applies TurboSHAKE128 on each of them separately before applying
+    TurboSHAKE128 again on the concatenation of the first fragment and the digests.
     It makes use of Sakura coding for ensuring soundness of the tree hashing
     mode <xref target="SAKURA"/>.
-    The inner hash function F is a sponge function and uses a round-reduced
-    version of the permutation Keccak-f used in SHA-3, making it faster than
-    ParallelHash.
-    Its security builds up on the scrutiny that Keccak has received since its
+    The TurboSHAKE speed-up over SHA-3 directly translates in KangarooTwelve,
+    making it faster than ParallelHash.</t>
+
+    <t>The security of both TurboSHAKE128, TurboSHAKE256 and KangarooTwelve builds up on the
+    scrutiny that Keccak has received since its
     publication <xref target="KECCAK_CRYPTANALYSIS"/>.</t>
 
-
     <t>With respect to <xref target="FIPS202"></xref> and <xref target="SP800-185"></xref>
-    functions, KangarooTwelve features the following advantages:</t>
+    functions, TurboSHAKE128, TurboSHAKE256 and KangarooTwelve feature the following advantages:</t>
 
     <t><list style="symbols">
-      <t>Unlike SHA3-224, SHA3-256, SHA3-384, SHA3-512, KangarooTwelve has an
-    extendable output.</t>
+      <t>Unlike SHA3-224, SHA3-256, SHA3-384, SHA3-512; TurboSHAKE and
+      KangarooTwelve have an extendable output.</t>
 
     <t>Unlike any <xref target="FIPS202"></xref> defined function, similarly to
     functions defined in <xref target="SP800-185"></xref>, KangarooTwelve
@@ -145,8 +152,10 @@
     <t>Unlike ParallelHash, KangarooTwelve does not have overhead when
     processing short messages.</t>
 
-    <t>The Keccak-f permutation in KangarooTwelve has half the number of rounds
-    of the one used in SHA3, making it faster than any function defined in
+    <t>The permutation in TurboSHAKE is Keccak-p[n_r=12] and hence has half
+    the number of rounds of the one used in SHA3, making it faster than any
+    function defined in <xref target="FIPS202"></xref>.
+    KangarooTwelve immediately benefits from this speeds up, improving over
     <xref target="FIPS202"></xref> and <xref target="SP800-185"></xref>.</t>
     </list></t>
 
@@ -202,73 +211,85 @@
     </section>
   </section>
 
-  <section title="Specifications">
-
-    <t>KangarooTwelve is an eXtendable Output Function (XOF).
-      It takes as input two byte-strings (M, C) and a positive integer L
-    where <list style="hanging">
-      <t hangText="M"> byte-string, is the Message and</t>
-      <t hangText="C"> byte-string, is an OPTIONAL Customization string and</t>
-      <t hangText="L"> positive integer, the requested number of output bytes.</t>
-    </list></t>
-
-    <t>The Customization string MAY serve as domain separation.
-    It is typically a short string such as a name or an identifier (e.g. URI,
-    ODI...)</t>
-
-    <t>By default, the Customization string is the empty string. For an API that
-    does not support a customization string input, C MUST be the empty string.</t>
-
-    <section title="Inner function F">
-      <t>The inner function F makes use of the permutation
-      Keccak-p[1600,n_r=12], i.e., a version of the permutation Keccak-f[1600]
-      used in SHAKE and SHA-3 instances reduced to its last n_r=12 rounds and
-      specified in FIPS 202, sections 3.3 and 3.4 <xref target="FIPS202"></xref>.
-      KP denotes this permutation.</t>
-
-      <t>F is a sponge function calling this permutation KP with a rate of 168 bytes
-      or 1344 bits. It follows that F has a capacity of 1600 - 1344 = 256 bits
-      or 32 bytes.</t>
-
-      <t>The sponge function F takes:<list style="hanging">
-        <t hangText="input"> byte-string of positive length, the input bytes and</t>
-        <t hangText="outputByteLen"> positive integer, the length of the output in bytes</t>
+  <section title="TurboSHAKE">
+    <section title="Interface">
+      <t>TurboSHAKE is a family of eXtendable Output Functions (XOF).
+      It takes as input a byte-string M, an OPTIONAL byte D and a positive integer L
+      where<list style="hanging">
+        <t hangText="M"> byte-string, is the Message and</t>
+        <t hangText="D"> byte in the range [`01`, `02`, ... , `7F`], is an OPTIONAL Domain separation byte and</t>
+        <t hangText="L"> positive integer, the requested number of output bytes.</t>
       </list></t>
 
-      <t>First non-multiple of 168-bytes-length inputs are padded with zeroes to the next
-      multiple of 168 bytes while inputs multiple of 168 bytes are kept as is.
-      Then a byte `80` is XORed to the last byte of the padded message
-      and the resulting string is split into a sequence of 168-byte blocks.</t>
+      <t>By default, the Domain separation byte is `01`. For an API that
+      does not support a domain separation byte, D MUST be the `01`.</t>
+    </section>
 
-      <t>Inputs of length 0 bytes do not happen as a result of the tree hashing mode defined in section 2.2.</t>
+    <section title="Specifications">
+      <t>TurboSHAKE makes use of the permutation Keccak-p[1600,n_r=12],
+      i.e., the permutation used in SHAKE and SHA-3 instances reduced
+      to its last n_r=12 rounds and specified in FIPS 202, sections
+      3.3 and 3.4 <xref target="FIPS202"></xref>.
+      KP denotes this permutation.</t>
 
-      <t>As defined by the sponge construction, the process operates on a state
-      and consists of two phases: the absorbing phase that processes the input
-      and the squeezing phase that produces the output.</t>
-
-      <t>In the absorbing phase the state is initialized to all-zero. The
-      message blocks are XORed into the first 168 bytes of the state.
-      Each block absorbed is followed with an application of KP to the state.</t>
-
-      <t>In the squeezing phase output is formed by taking the first 168 bytes
-      of the state, repeated as many times as necessary until outputByteLen
-      bytes are obtained, interleaved with the application of KP to the state.</t>
-
-      <t>The definition of the function F equivalently implements the pad10*1 rule.
-      It assumes an at least one-byte-long input where the last byte is in the `01`-`7F` range,
-      and this is the case in KangarooTwelve.
-      This last byte serves as domain separation and integrates the first bit of padding
-      of the pad10*1 rule (hence it cannot be `00`).
-      Additionally, it must leave room for the second bit of padding
-      (hence it cannot have the MSB set to 1), should it be the last byte of the block.
-      For more details, refer to Section 6.1 of <xref target="K12"></xref>.</t>
-
-      <t>A pseudocode version is available as follows:</t>
+      <t>Similarly to SHAKE128, TurboSHAKE128 is a sponge function
+      calling this permutation KP with a rate of 168 bytes
+      or 1344 bits. It follows that TurboSHAKE128 has a capacity of
+      1600 - 1344 = 256 bits or 32 bytes. Respectively to SHAKE256, TurboSHAKE256 makes use
+      of a rate of 136 bytes or 1088 bits, and a capacity of 512 bits or 64 bytes.</t>
 
       <t><figure><artwork><![CDATA[
-  F(input, outputByteLen):
+                         +-------------+--------------+
+                         |    Rate     |   Capacity   |
+        +----------------+-------------+--------------+
+        | TurboSHAKE128  |  168 Bytes  |   32 Bytes   |
+        |                |             |              |
+        | TurboSHAKE256  |  136 Bytes  |   64 Bytes   |
+        +----------------+-------------+--------------+]]></artwork>
+      </figure></t>
+
+      <t>We now describe the operations inside TurboSHAKE128.<list style="symbols">
+        <t>First the message M is appended with the domain separation byte D, forming the input.</t>
+
+        <t>Non-multiple of 168-bytes-length inputs are padded with zeroes to the next
+        multiple of 168 bytes while inputs multiple of 168 bytes are kept as is.
+        Then a byte `80` is XORed to the last byte of the padded message
+        and the resulting string is split into a sequence of 168-byte blocks.
+        </t>
+
+        <t>Inputs of length 0 bytes do not happen due to the presence of the domain separation byte.</t>
+
+        <t>As defined by the sponge construction, the process operates on a state
+        and consists of two phases: the absorbing phase that processes the input
+        and the squeezing phase that produces the output.</t>
+
+        <t>In the absorbing phase the state is initialized to all-zero. The
+        message blocks are XORed into the first 168 bytes of the state.
+        Each block absorbed is followed with an application of KP to the state.</t>
+
+        <t>In the squeezing phase output is formed by taking the first 168 bytes
+        of the state, repeated as many times as necessary until outputByteLen
+        bytes are obtained, interleaved with the application of KP to the state.</t>
+      </list></t>
+
+    <t>TurboSHAKE256 performs the same steps but makes use of 136-bytes blocks with respect
+    to padding, absorbing, and squeezing phases.</t>
+
+    <t>The definition of the function TurboSHAKE equivalently implements the pad10*1 rule.
+    While M can be empty, the D byte always present and is in the `01`-`7F` range.
+    This last byte serves as domain separation and integrates the first bit of padding
+    of the pad10*1 rule (hence it cannot be `00`).
+    Additionally, it must leave room for the second bit of padding
+    (hence it cannot have the MSB set to 1), should it be the last byte of the block.
+    For more details, refer to Section 6.1 of <xref target="K12"></xref>.</t>
+
+    <t>A pseudocode version is available as follows:</t>
+
+    <t><figure><artwork><![CDATA[
+  TurboSHAKE128(message, separationByte, outputByteLen):
     offset = 0
     state = `00`^200
+    input = message || separationByte
 
     # === Absorb complete blocks ===
     while offset < |input| - 168
@@ -294,105 +315,127 @@
     return output
     end]]></artwork></figure></t>
     </section>
+  </section>
 
-    <section title="Tree hashing over F">
+  <section title="KangarooTwelve: Tree hashing over TurboSHAKE128">
 
-      <t>On top of the sponge function F, KangarooTwelve uses a
-      Sakura-compatible tree hash mode <xref target="SAKURA"></xref>.
-      First, merge M and the OPTIONAL C to a single input string S in a
-      reversible way. length_encode( |C| ) gives the length in bytes of C as a
-      byte-string.
-      See <xref target="RE"/>.</t>
+    <section title="Interface">
+      <t>KangarooTwelve is an eXtendable Output Function (XOF).
+      It takes as input two byte-strings (M, C) and a positive integer L
+      where <list style="hanging">
+      <t hangText="M"> byte-string, is the Message and</t>
+      <t hangText="C"> byte-string, is an OPTIONAL Customization string and</t>
+      <t hangText="L"> positive integer, the requested number of output bytes.</t>
+      </list></t>
 
-      <t><figure><artwork><![CDATA[
-          S = M || C || length_encode( |C| ) ]]></artwork></figure></t>
+        <t>The Customization string MAY serve as domain separation.
+        It is typically a short string such as a name or an identifier (e.g. URI,
+        ODI...)</t>
 
-      <t>Then, split S into n chunks of 8192 bytes.</t>
+        <t>By default, the Customization string is the empty string. For an API that
+        does not support a customization string input, C MUST be the empty string.</t>
+    </section>
 
-      <t><figure><artwork><![CDATA[
-          S = S_0 || .. || S_(n-1)
+    <section title="Specification">
+        <t>On top of the sponge function TurboSHAKE128, KangarooTwelve uses a
+        Sakura-compatible tree hash mode <xref target="SAKURA"></xref>.
+        First, merge M and the OPTIONAL C to a single input string S in a
+        reversible way. length_encode( |C| ) gives the length in bytes of C as a
+        byte-string.
+        See <xref target="RE"/>.</t>
+
+        <t><figure><artwork><![CDATA[
+            S = M || C || length_encode( |C| ) ]]></artwork></figure></t>
+
+        <t>Then, split S into n chunks of 8192 bytes.</t>
+
+        <t><figure><artwork><![CDATA[
+            S = S_0 || .. || S_(n-1)
             |S_0| = .. = |S_(n-2)| = 8192 bytes
             |S_(n-1)| <= 8192 bytes ]]></artwork></figure></t>
 
-      <t>From S_1 .. S_(n-1), compute the 32-byte Chaining Values CV_1 .. CV_(n-1).
-      In order to be optimally efficient, this computation SHOULD exploit the
-      parallelism available on the platform such as SIMD instructions.</t>
+        <t>From S_1 .. S_(n-1), compute the 32-byte Chaining Values CV_1 .. CV_(n-1).
+        In order to be optimally efficient, this computation SHOULD exploit the
+        parallelism available on the platform such as SIMD instructions.</t>
 
-      <t><figure><artwork><![CDATA[
-             CV_i    = F( S_i||`0B`, 32 )]]></artwork></figure></t>
+        <t><figure><artwork><![CDATA[
+                CV_i    = TurboSHAKE128( S_i, `0B`, 32 )]]></artwork></figure></t>
 
-      <t>Compute the final node: FinalNode.
-      <list style="symbols">
+        <t>Compute the final node: FinalNode.
+        <list style="symbols">
         <t>If |S| &lt;= 8192 bytes, FinalNode = S</t>
         <t>Otherwise compute FinalNode as follows:</t>
-      </list></t>
+        </list></t>
 
-      <t><figure><artwork><![CDATA[
-          FinalNode = S_0 || `03 00 00 00 00 00 00 00`
-          FinalNode = FinalNode || CV_1
+        <t><figure><artwork><![CDATA[
+            FinalNode = S_0 || `03 00 00 00 00 00 00 00`
+            FinalNode = FinalNode || CV_1
                 ..
-          FinalNode = FinalNode || CV_(n-1)
-          FinalNode = FinalNode || length_encode(n-1)
-          FinalNode = FinalNode || `FF FF`]]></artwork></figure></t>
+            FinalNode = FinalNode || CV_(n-1)
+            FinalNode = FinalNode || length_encode(n-1)
+            FinalNode = FinalNode || `FF FF`]]></artwork></figure></t>
 
-      <t>Finally, KangarooTwelve output is retrieved:
+        <t>Finally, KangarooTwelve output is retrieved:
         <list style="symbols">
-          <t>If |S| &lt;= 8192 bytes, from F( FinalNode||`07`, L )</t>
+            <t>If |S| &lt;= 8192 bytes, from TurboSHAKE128( FinalNode, `07`, L )</t>
         </list></t>
 
         <t><figure>
-        <artwork><![CDATA[      KangarooTwelve( M, C, L ) = F( FinalNode||`07`, L )]]>
+        <artwork><![CDATA[      KangarooTwelve( M, C, L ) = TurboSHAKE128( FinalNode, `07`, L )]]>
         </artwork></figure></t>
 
-        <t><list style="symbols">
-          <t>Otherwise from F( FinalNode||`06`, L )</t>
-        </list></t>
+      <t><list style="symbols">
+        <t>Otherwise from TurboSHAKE128( FinalNode, `06`, L )</t>
+      </list></t>
 
       <t><figure>
-      <artwork><![CDATA[      KangarooTwelve( M, C, L ) = F( FinalNode||`06`, L )]]>
+      <artwork><![CDATA[      KangarooTwelve( M, C, L ) = TurboSHAKE128( FinalNode, `06`, L )]]>
       </artwork></figure></t>
 
       <t>The following figure illustrates the computation flow of KangarooTwelve
-        for |S| &lt;= 8192 bytes:</t>
+      for |S| &lt;= 8192 bytes:</t>
 
         <t><figure><artwork><![CDATA[
-          +--------------+  F(..||`07`, L)
-          |      S       |----------------->  output
-          +--------------+]]></artwork></figure></t>
+        +--------------+  TurboSHAKE128(.., `07`, L)
+        |      S       |----------------------------->  output
+        +--------------+]]></artwork></figure></t>
 
       <t>The following figure illustrates the computation flow of KangarooTwelve
-        for |S| &gt; 8192 bytes and where length_encode( x ) is abbreviated as l_e( x ):</t>
+      for |S| &gt; 8192 bytes and where TurboSHAKE128 and length_encode( x ) are
+      abbreviated as respectively TSHK128 and l_e( x ) :</t>
 
       <t><figure><artwork><![CDATA[
-                             +--------------+
-                             |     S_0      |
-                             +--------------+
-                                   ||
-                             +--------------+
-                             | `03`||`00`^7 |
-                             +--------------+
-                                   ||
-+---------+  F(..||`0B`,32)  +--------------+
-|   S_1   |----------------->|     CV_1     |
-+---------+                  +--------------+
-                                   ||
-+---------+  F(..||`0B`,32)  +--------------+
-|   S_2   |----------------->|     CV_2     |
-+---------+                  +--------------+
-                                   ||
-          ...                      ...
-                                   ||
-+---------+  F(..||`0B`,32)  +--------------+
-| S_(n-1) |----------------->|   CV_(n-1)   |
-+---------+                  +--------------+
-                                   ||
-                             +--------------+
-                             |  l_e( n-1 )  |
-                             +--------------+
-                                   ||
-                             +--------------+  F(..||`06`, L)
-                             |   `FF FF`    |----------------->  output
-                             +--------------+]]></artwork></figure></t>
+                                  +--------------+
+                                  |     S_0      |
+                                  +--------------+
+                                        ||
+                                  +--------------+
+                                  | `03`||`00`^7 |
+                                  +--------------+
+                                        ||
++---------+  TSHK128(..,`0B`,32)  +--------------+
+|   S_1   |---------------------->|     CV_1     |
++---------+                       +--------------+
+                                        ||
++---------+  TSHK128(..,`0B`,32)  +--------------+
+|   S_2   |---------------------->|     CV_2     |
++---------+                       +--------------+
+                                        ||
+               ...                      ...
+                                        ||
++---------+  TSHK128(..,`0B`,32)  +--------------+
+| S_(n-1) |----------------------->|   CV_(n-1)   |
++---------+                       +--------------+
+                                        ||
+                                  +--------------+
+                                  |  l_e( n-1 )  |
+                                  +--------------+
+                                        ||
+                                  +--------------+
+                                  |   `FF FF`    |
+                                  +--------------+
+                                         | TSHK128(.., `06`, L)
+                                         +-------------------->  output]]></artwork></figure></t>
 
       <t>A pseudocode version is provided in <xref target="K_PC"/>.</t>
 
@@ -478,6 +521,159 @@
        10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F
        20 21 22 23 24 25`]]></artwork></figure></t>
 
+    <t><figure><artwork><![CDATA[
+  TurboSHAKE128(M=`00`^0, D=`07`, 32):
+    `5A 22 3A D3 0B 3B 8C 66 A2 43 04 8C FC ED 43 0F
+     54 E7 52 92 87 D1 51 50 B9 73 13 3A DF AC 6A 2F`
+
+  TurboSHAKE128(M=`00`^0, D=`07`, 64):
+    `5A 22 3A D3 0B 3B 8C 66 A2 43 04 8C FC ED 43 0F
+     54 E7 52 92 87 D1 51 50 B9 73 13 3A DF AC 6A 2F
+     FE 27 08 E7 30 61 E0 9A 40 00 16 8B A9 C8 CA 18
+     13 19 8F 7B BE D4 98 4B 41 85 F2 C2 58 0E E6 23`
+
+  TurboSHAKE128(M=`00`^0, D=`07`, 10032), last 32 bytes:
+    `75 93 A2 80 20 A3 C4 AE 0D 60 5F D6 1F 5E B5 6E
+     CC D2 7C C3 D1 2F F0 9F 78 36 97 72 A4 60 C5 5D`
+
+  TurboSHAKE128(M=ptn(1 bytes), D=`07`, 32):
+    `1A C2 D4 50 FC 3B 42 05 D1 9D A7 BF CA 1B 37 51
+     3C 08 03 57 7A C7 16 7F 06 FE 2C E1 F0 EF 39 E5`
+
+  TurboSHAKE128(M=ptn(17 bytes), D=`07`, 32):
+    `AC BD 4A A5 75 07 04 3B CE E5 5A D3 F4 85 04 D8
+     15 E7 07 FE 82 EE 3D AD 6D 58 52 C8 92 0B 90 5E`
+
+  TurboSHAKE128(M=ptn(17**2 bytes), D=`07`, 32):
+    `7A 4D E8 B1 D9 27 A6 82 B9 29 61 01 03 F0 E9 64
+     55 9B D7 45 42 CF AD 74 0E E3 D9 B0 36 46 9E 0A`
+
+  TurboSHAKE128(M=ptn(17**3 bytes), D=`07`, 32):
+    `74 52 ED 0E D8 60 AA 8F E8 E7 96 99 EC E3 24 F8
+     D9 32 71 46 36 10 DA 76 80 1E BC EE 4F CA FE 42`
+
+  TurboSHAKE128(M=ptn(17**4 bytes), D=`07`, 32):
+    `CA 5F 1F 3E EA C9 92 CD C2 AB EB CA 0E 21 67 65
+     DB F7 79 C3 C1 09 46 05 5A 94 AB 32 72 57 35 22`
+
+  TurboSHAKE128(M=ptn(17**5 bytes), D=`07`, 32):
+    `E9 88 19 3F B9 11 9F 11 CD 34 46 79 14 E2 A2 6D
+     A9 BD F9 6C 8B EF 07 6A EE AD 1A 89 7B 86 63 83`
+
+  TurboSHAKE128(M=ptn(17**6 bytes), D=`07`, 32):
+    `9C 0F FB 98 7E EE ED AD FA 55 94 89 87 75 6D 09
+     0B 67 CC B6 12 36 E3 06 AC 8A 24 DE 1D 0A F7 74`
+
+  TurboSHAKE128(M=`00`^0, D=`06`, 32):
+    `C7 90 29 30 6B FA 2F 17 83 6A 3D 65 16 D5 56 63
+     40 FE A6 EB 1A 11 39 AD 90 0B 41 24 3C 49 4B 37`
+
+  TurboSHAKE128(M=`00`^0, D=`0B`, 32):
+    `8B 03 5A B8 F8 EA 7B 41 02 17 16 74 58 33 2E 46
+     F5 4B E4 FF 83 54 BA F3 68 71 04 A6 D2 4B 0E AB`
+
+  TurboSHAKE128(M=`00`^0, D=`06`, 32):
+    `C7 90 29 30 6B FA 2F 17 83 6A 3D 65 16 D5 56 63
+     40 FE A6 EB 1A 11 39 AD 90 0B 41 24 3C 49 4B 37`
+
+  TurboSHAKE128(M=`FF`, D=`06`, 32):
+    `8E C9 C6 64 65 ED 0D 4A 6C 35 D1 35 06 71 8D 68
+     7A 25 CB 05 C7 4C CA 1E 42 50 1A BD 83 87 4A 67`
+
+  TurboSHAKE128(M=`FF FF FF`, D=`06`, 32):
+    `3D 03 98 8B B5 9E 68 18 51 A1 92 F4 29 AE 03 98
+     8E 8F 44 4B C0 60 36 A3 F1 A7 D2 CC D7 58 D1 74`
+
+  TurboSHAKE128(M=`FF FF FF FF FF FF FF`, D=`06`, 32):
+    `05 D9 AE 67 3D 5F 0E 48 BB 2B 57 E8 80 21 A1 A8
+     3D 70 BA 85 92 3A A0 4C 12 E8 F6 5B A1 F9 45 95`
+     ]]></artwork></figure></t>
+
+    <t><figure><artwork><![CDATA[
+  TurboSHAKE256(M=`00`^0, D=`07`, 64):
+    `4A 55 5B 06 EC F8 F1 53 8C CF 5C 95 15 D0 D0 49
+     70 18 15 63 A6 23 81 C7 F0 C8 07 A6 D1 BD 9E 81
+     97 80 4B FD E2 42 8B F7 29 61 EB 52 B4 18 9C 39
+     1C EF 6F EE 66 3A 3C 1C E7 8B 88 25 5B C1 AC C3`
+
+  TurboSHAKE256(M=`00`^0, D=`07`, 10032), last 32 bytes:
+    `40 22 1A D7 34 F3 ED C1 B1 06 BA D5 0A 72 94 93
+     15 B3 52 BA 39 AD 98 B5 B3 C2 30 11 63 AD AA D0`
+
+  TurboSHAKE256(M=`00`^0, D=`07`, 64):
+    `B2 3D 2E 9C EA 9F 49 04 E0 2B EC 06 81 7F C1 0C
+     E3 8C E8 E9 3E F4 C8 9E 65 37 07 6A F8 64 64 04
+     E3 E8 B6 81 07 B8 83 3A 5D 30 49 0A A3 34 82 35
+     3F D4 AD C7 14 8E CB 78 28 55 00 3A AE BD E4 A9`
+
+  TurboSHAKE256(M=ptn(17 bytes), D=`07`, 64):
+    `66 D3 78 DF E4 E9 02 AC 4E B7 8F 7C 2E 5A 14 F0
+     2B C1 C8 49 E6 21 BA E6 65 79 6F B3 34 6E 6C 79
+     75 70 5B B9 3C 00 F3 CA 8F 83 BC A4 79 F0 69 77
+     AB 3A 60 F3 97 96 B1 36 53 8A AA E8 BC AC 85 44`
+
+  TurboSHAKE256(M=ptn(17**2 bytes), D=`07`, 64):
+    `C5 21 74 AB F2 82 95 E1 5D FB 37 B9 46 AC 36 BD
+     3A 6B CC 98 C0 74 FC 25 19 9E 05 30 42 5C C5 ED
+     D4 DF D4 3D C3 E7 E6 49 1A 13 17 98 30 C3 C7 50
+     C9 23 7E 83 FD 9A 3F EC 46 03 FF 57 E4 22 2E F2`
+
+  TurboSHAKE256(M=ptn(17**3 bytes), D=`07`, 64):
+    `62 A5 A0 BF F0 64 26 D7 1A 7A 3E 9E 3F 2F D6 E2
+     52 FF 3F C1 88 A6 A5 36 EC A4 5A 49 A3 43 7C B3
+     BC 3A 0F 81 49 C8 50 E6 E7 F4 74 7A 70 62 7F D2
+     30 30 41 C6 C3 36 30 F9 43 AD 92 F8 E1 FF 43 90`
+
+  TurboSHAKE256(M=ptn(17**4 bytes), D=`07`, 64):
+    `52 3C 06 47 18 2D 89 41 F0 DD 5C 5C 0A B6 2D 4F
+     C2 95 61 61 53 96 BB 5B 9A 9D EB 02 2B 80 C5 BF
+     2D 83 A3 BB 36 FF C0 4F AC 58 CF 11 49 C6 6D EC
+     4A 59 52 6E 51 F2 95 96 D8 24 42 1A 4B 84 B4 4D`
+
+  TurboSHAKE256(M=ptn(17**5 bytes), D=`07`, 64):
+    `D1 14 A1 C1 A2 08 FF 05 FD 49 D0 9E E0 35 46 5D
+     86 54 7E BA D8 E9 AF 4F 8E 87 53 70 57 3D 6B 7B
+     B2 0A B9 60 63 5A B5 74 E2 21 95 EF 9D 17 1C 9A
+     28 01 04 4B 6E 2E DF 27 2E 23 02 55 4B 3A 77 C9`
+
+  TurboSHAKE256(M=ptn(17**6 bytes), D=`07`, 64):
+    `1E 51 34 95 D6 16 98 75 B5 94 53 A5 94 E0 8A E2
+     71 CA 20 E0 56 43 C8 8A 98 7B 5B 6A B4 23 ED E7
+     24 0F 34 F2 B3 35 FA 94 BC 4B 0D 70 E3 1F B6 33
+     B0 79 84 43 31 FE A4 2A 9C 4D 79 BB 8C 5F 9E 73`
+
+  TurboSHAKE256(M=`00`^0, D=`0B`, 64):
+    `4C FB 3C A1 0E 97 D3 51 1C F6 1F C5 00 D0 BF 7D
+     0E 0B 7E 6C 2E 6E F6 58 8F 96 24 8E 97 1C 50 26
+     35 59 04 87 8C 01 D4 AD 64 4A 43 31 B2 BB 17 F1
+     B9 63 C7 79 03 1A 7C B3 EE FB 02 66 9B 37 4C 2A`
+
+  TurboSHAKE256(M=`00`^0, D=`06`, 64):
+    `FF 23 DC CD 62 16 8F 5A 44 46 52 49 A8 6D C1 0E
+     8A AB 4B D2 6A 22 DE BF 23 48 02 0A 83 1C DB E1
+     2C DD 36 A7 DD D3 1E 71 C0 1F 7C 97 A0 D4 C3 A0
+     CC 1B 21 21 E6 B7 CE AB 38 87 A4 C9 A5 AF 8B 03`
+
+  TurboSHAKE256(M=`FF`, D=`06`, 64):
+    `73 8D 7B 4E 37 D1 8B 7F 22 AD 1B 53 13 E3 57 E3
+     DD 7D 07 05 6A 26 A3 03 C4 33 FA 35 33 45 52 80
+     F4 F5 A7 D4 F7 00 EF B4 37 FE 6D 28 14 05 E0 7B
+     E3 2A 0A 97 2E 22 E6 3A DC 1B 09 0D AE FE 00 4B`
+
+  TurboSHAKE256(M=`FF FF FF`, D=`06`, 64):
+    `E5 53 8C DD 28 30 2A 2E 81 E4 1F 65 FD 2A 40 52
+     01 4D 0C D4 63 DF 67 1D 1E 51 0A 9D 95 C3 7D 71
+     35 EF 27 28 43 0A 9E 31 70 04 F8 36 C9 A2 38 EF
+     35 37 02 80 D0 3D CE 7F 06 12 F0 31 5B 3C BF 63`
+
+  TurboSHAKE256(M=`FF FF FF FF FF FF FF`, D=`06`, 64):
+    `B3 8B 8C 15 F4 A6 E8 0C D3 EC 64 5F 99 9F 64 98
+     AA D7 A5 9A 48 9C 1D EE 29 70 8B 4F 8A 59 E1 24
+     99 A9 6F 89 37 22 56 FE 52 2B 1B 97 47 2A DD 73
+     69 15 BD 4D F9 3B 21 FF E5 97 21 7E B3 C2 C6 D9`
+
+     ]]></artwork></figure></t>
+
     <t><figure><artwork><![CDATA[  KangarooTwelve(M=`00`^0, C=`00`^0, 32):
     `1A C2 D4 50 FC 3B 42 05 D1 9D A7 BF CA 1B 37 51
      3C 08 03 57 7A C7 16 7F 06 FE 2C E1 F0 EF 39 E5`
@@ -543,20 +739,32 @@
 
   <section anchor="Security" title="Security Considerations">
     <t>This document is meant to serve as a stable reference and an
-    implementation guide for the KangarooTwelve eXtendable Output Function.
+    implementation guide for the KangarooTwelve and TurboSHAKE eXtendable Output Functions.
     It relies on the cryptanalysis of Keccak and provides with the same security
-    strength as SHAKE128, i.e., 128 bits of security against all attacks.</t>
+    strength as their respective SHA-3 functions.</t>
+
+    <t><figure><artwork><![CDATA[
+                          +-------------------------------+
+                          |        security claim         |
+        +-----------------+-------------------------------+
+        | TurboSHAKE128   |  128 bits (same as SHAKE128)  |
+        |                 |                               |
+        | KangarooTwelve  |  128 bits (same as SHAKE128)  |
+        |                 |                               |
+        | TurboSHAKE256   |  256 bits (same as SHAKE256)  |
+        +-----------------+-------------------------------+]]></artwork>
+      </figure></t>
 
     <t>
     To be more precise, KangarooTwelve is made of two layers:
     <list style="symbols">
-    <t>The inner function F. This layer relies on cryptanalysis.
-    KangarooTwelve's F function is exactly Keccak[r=1344, c=256] (as in SHAKE128)
+    <t>The inner function TurboSHAKE128. This layer relies on cryptanalysis.
+    TurboSHAKE128 function is exactly Keccak[r=1344, c=256] (as in SHAKE128)
     reduced to 12 rounds. Any reduced-round cryptanalysis on Keccak
-    is also a reduced-round cryptanalysis of KangarooTwelve's F
+    is also a reduced-round cryptanalysis of TurboSHAKE128
     (provided the number of rounds attacked is not higher than 12).</t>
-    <t>The tree hashing over F. This layer is a mode on top
-    of F that does not introduce any vulnerability thanks to
+    <t>The tree hashing over TurboSHAKE128. This layer is a mode on top
+    of TurboSHAKE128 that does not introduce any vulnerability thanks to
     the use of Sakura coding proven secure in <xref target="SAKURA"/>.</t>
     </list></t>
     <t>This reasoning is detailed and formalized in <xref target="K12"/>.</t>
@@ -633,6 +841,21 @@
 
 <references title="Informative References">
 
+  <reference anchor="TURBOSHAKE">
+    <front>
+      <title>TurboSHAKE</title>
+      <author initials="G." surname="Bertoni" fullname="Guido Bertoni"/>
+      <author initials="J." surname="Daemen" fullname="Joan Daemen"/>
+      <author initials="S." surname="Hoffert" fullname="Seth Hoffert"/>
+      <author initials="M." surname="Peeters" fullname="Michael Peeters"/>
+      <author initials="G." surname="Van Assche" fullname="Gilles Van Assche"/>
+      <author initials="R." surname="Van Keer" fullname="Ronny Van Keer"/>
+      <author initials="B." surname="Viguier" fullname="Beno&icirc;t Viguier"/>
+      <!-- <date month="July" year="2018"/> -->
+    </front>
+    <seriesInfo name="WWW" value="http://eprint.iacr.org/2023/TO APPEAR"/>
+  </reference>
+
   <reference anchor="K12">
     <front>
       <title>KangarooTwelve: fast hashing based on Keccak-p</title>
@@ -641,6 +864,7 @@
       <author initials="M." surname="Peeters" fullname="Michael Peeters"/>
       <author initials="G." surname="Van Assche" fullname="Gilles Van Assche"/>
       <author initials="R." surname="Van Keer" fullname="Ronny Van Keer"/>
+      <author initials="B." surname="Viguier" fullname="Beno&icirc;t Viguier"/>
       <date month="July" year="2018"/>
     </front>
     <seriesInfo name="WWW" value="https://link.springer.com/chapter/10.1007/978-3-319-93387-0_21"/>
@@ -772,6 +996,38 @@ KP(state):
       </t>
     </section>
 
+    <section anchor="TSHK_PC" title="TurboSHAKE128">
+      <t><figure><artwork><![CDATA[
+TurboSHAKE128(message, separationByte, outputByteLen):
+  offset = 0
+  state = `00`^200
+  input = message || separationByte
+
+  # === Absorb complete blocks ===
+  while offset < |input| - 168
+      state ^= input[offset : offset + 168] || `00`^32
+      state = KP(state)
+      offset += 168
+
+  # === Absorb last block and treatment of padding ===
+  LastBlockLength = |input| - offset
+  state ^= input[offset:] || `00`^(200-LastBlockLength)
+  state ^= `00`^167 || `80` || `00`^32
+  state = KP(state)
+
+  # === Squeeze ===
+  output = `00`^0
+  while outputByteLen > 168
+      output = output || state[0:168]
+      outputByteLen -= 168
+      state = KP(state)
+
+  output = output || state[0:outputByteLen]
+
+  return output
+]]></artwork></figure></t>
+    </section>
+
     <section anchor="K_PC" title="KangarooTwelve">
       <t><figure><artwork><![CDATA[
 KangarooTwelve(inputMessage, customString, outputByteLen):
@@ -779,7 +1035,7 @@ KangarooTwelve(inputMessage, customString, outputByteLen):
   S = S || length_encode( |customString| )
 
   if |S| <= 8192
-      return F(S || `07`, outputByteLen)
+      return TurboSHAKE128(S, `07`, outputByteLen)
   else
       # === Kangaroo hopping ===
       FinalNode = S[0:8192] || `03` || `00`^7
@@ -787,14 +1043,14 @@ KangarooTwelve(inputMessage, customString, outputByteLen):
       numBlock = 0
       while offset < |S|
           blockSize = min( |S| - offset, 8192)
-          CV = F(S[offset : offset + blockSize] || `0B`, 32)
+          CV = TurboSHAKE128(S[offset : offset + blockSize], `0B`, 32)
           FinalNode = FinalNode || CV
           numBlock += 1
           offset   += blockSize
 
       FinalNode = FinalNode || length_encode( numBlock ) || `FF FF`
 
-      return F(FinalNode || `06`, outputByteLen)
+      return TurboSHAKE128(FinalNode, `06`, outputByteLen)
   end
 ]]></artwork></figure></t>
     </section>
