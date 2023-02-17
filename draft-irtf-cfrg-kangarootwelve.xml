@@ -851,9 +851,9 @@
       <author initials="G." surname="Van Assche" fullname="Gilles Van Assche"/>
       <author initials="R." surname="Van Keer" fullname="Ronny Van Keer"/>
       <author initials="B." surname="Viguier" fullname="Beno&icirc;t Viguier"/>
-      <date month="July" year="2018"/>
+      <!-- <date month="July" year="2018"/> -->
     </front>
-    <seriesInfo name="WWW" value="http://eprint.iacr.org/2023/"/>
+    <seriesInfo name="WWW" value="http://eprint.iacr.org/2023/TO APPEAR"/>
   </reference>
 
   <reference anchor="K12">
