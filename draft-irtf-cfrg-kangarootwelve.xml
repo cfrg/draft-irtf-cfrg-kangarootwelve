@@ -221,8 +221,8 @@
         <t hangText="L"> positive integer, the requested number of output bytes.</t>
       </list></t>
 
-      <t>By default, the Domain separation byte is `01`. For an API that
-      does not support a domain separation byte, D MUST be the `01`.</t>
+      <t>By default, the Domain separation byte is `1F`. For an API that
+      does not support a domain separation byte, D MUST be the `1F`.</t>
     </section>
 
     <section title="Specifications">
@@ -281,7 +281,7 @@
     of the pad10*1 rule (hence it cannot be `00`).
     Additionally, it must leave room for the second bit of padding
     (hence it cannot have the MSB set to 1), should it be the last byte of the block.
-    For more details, refer to Section 6.1 of <xref target="K12"></xref>.</t>
+    For more details, refer to Section 6.1 of <xref target="K12"></xref> and Section 3 of <xref target="TURBOSHAKE"></xref>.</t>
 
     <t>A pseudocode version is available as follows:</t>
 
@@ -851,9 +851,9 @@
       <author initials="G." surname="Van Assche" fullname="Gilles Van Assche"/>
       <author initials="R." surname="Van Keer" fullname="Ronny Van Keer"/>
       <author initials="B." surname="Viguier" fullname="Beno&icirc;t Viguier"/>
-      <!-- <date month="July" year="2018"/> -->
+      <date month="March" year="2023"/>
     </front>
-    <seriesInfo name="WWW" value="http://eprint.iacr.org/2023/TO APPEAR"/>
+    <seriesInfo name="WWW" value="http://eprint.iacr.org/2023/342"/>
   </reference>
 
   <reference anchor="K12">
