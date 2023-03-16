@@ -95,7 +95,7 @@
   TurboSHAKE256 and KangarooTwelve.</t>
 
   <t>All three functions provide efficient and secure hashing primitive,
-  and the later is able to exploit the parallelism of the implementation
+  and the latter is able to exploit the parallelism of the implementation
   in a scalable way.</t>
 
   <t>This document builds up on the definitions of the permutations and of the
@@ -109,17 +109,17 @@
 
     <t>This document defines the TurboSHAKE128, TurboSHAKE256 <xref target="TURBOSHAKE"></xref> and
     KangarooTwelve <xref target="K12"></xref> eXtendable Output Functions (XOF),
-    i.e. a generalization of a hash function that can return an output of arbitrary length.
+    i.e., a generalization of a hash function that can return an output of arbitrary length.
     Both TurboSHAKE128 and TurboSHAKE256 are based on a Keccak-p permutation specified in <xref
-    target="FIPS202"></xref> and have a higher speed than SHAKE and SHA-3.</t>
+    target="FIPS202"></xref> and have a higher speed than the SHA-3 and SHAKE functions.</t>
 
-    <t>TurboSHAKE is a sponge function which makes use of Keccak-p[n_r=12,b=1600], a 12-round-reduced
-    version of the permutation used in SHA-3. Similarly to SHAKE, it proposes two security strength:
-    128 bit for TurboSHAKE128 and 256 bits for TurboSHAKE256.
-    The number of round being halved of SHAKE makes TurboSHAKE roughtly two-times
-    faster than their SHA-3 equivalent.</t>
+    <t>TurboSHAKE is a sponge function family that makes use of Keccak-p[n_r=12,b=1600], a 12-round-reduced
+    version of the permutation used in SHA-3. Similarly to the SHAKE's, it proposes two security strength:
+    128 bits for TurboSHAKE128 and 256 bits for TurboSHAKE256.
+    Halving the number of rounds compared to the original SHAKE functions makes TurboSHAKE roughly two times
+    faster.</t>
 
-    <t>The SHA-3 functions process data in a serial manner and are unable to
+    <t>The SHA-3 and SHAKE functions process data in a serial manner and are unable to
     optimally exploit parallelism available in modern CPU architectures.
     Similar to ParallelHash <xref target="SP800-185"></xref>, KangarooTwelve splits
     the input message into fragments to exploit available parallelism. It then
@@ -127,19 +127,18 @@
     TurboSHAKE128 again on the concatenation of the first fragment and the digests.
     It makes use of Sakura coding for ensuring soundness of the tree hashing
     mode <xref target="SAKURA"/>.
-    The TurboSHAKE speed-up over SHA-3 directly translates in KangarooTwelve,
-    making it faster than ParallelHash.</t>
+    The use of TurboSHAKE128 in KangarooTwelve makes it faster than ParallelHash.</t>
 
-    <t>The security of both TurboSHAKE128, TurboSHAKE256 and KangarooTwelve builds up on the
+    <t>The security of TurboSHAKE128, TurboSHAKE256 and KangarooTwelve builds up on the
     scrutiny that Keccak has received since its
-    publication <xref target="KECCAK_CRYPTANALYSIS"/>.</t>
+    publication <xref target="KECCAK_CRYPTANALYSIS"/><xref target="TURBOSHAKE"/>.</t>
 
     <t>With respect to <xref target="FIPS202"></xref> and <xref target="SP800-185"></xref>
     functions, TurboSHAKE128, TurboSHAKE256 and KangarooTwelve feature the following advantages:</t>
 
     <t><list style="symbols">
-      <t>Unlike SHA3-224, SHA3-256, SHA3-384, SHA3-512; TurboSHAKE and
-      KangarooTwelve have an extendable output.</t>
+      <t>Unlike SHA3-224, SHA3-256, SHA3-384, SHA3-512, the TurboSHAKE and
+      KangarooTwelve functions have an extendable output.</t>
 
     <t>Unlike any <xref target="FIPS202"></xref> defined function, similarly to
     functions defined in <xref target="SP800-185"></xref>, KangarooTwelve
@@ -152,10 +151,10 @@
     <t>Unlike ParallelHash, KangarooTwelve does not have overhead when
     processing short messages.</t>
 
-    <t>The permutation in TurboSHAKE is Keccak-p[n_r=12] and hence has half
-    the number of rounds of the one used in SHA3, making it faster than any
+    <t>The permutation in the TurboSHAKE functions has half
+    the number of rounds compared to the one in the SHA-3 and SHAKE functions, making it faster than any
     function defined in <xref target="FIPS202"></xref>.
-    KangarooTwelve immediately benefits from this speeds up, improving over
+    KangarooTwelve immediately benefits from the same speed up, improving over
     <xref target="FIPS202"></xref> and <xref target="SP800-185"></xref>.</t>
     </list></t>
 
@@ -214,7 +213,12 @@
   <section title="TurboSHAKE">
     <section title="Interface">
       <t>TurboSHAKE is a family of eXtendable Output Functions (XOF).
-      It takes as input a byte-string M, an OPTIONAL byte D and a positive integer L
+        This document focuses on only two instances, namely, TurboSHAKE128 and TurboSHAKE256,
+        although the original definition includes a wider range of instances parameterized by their capacity <xref target="TURBOSHAKE"/>.
+      </t>
+
+      <t>
+      An instance of TurboSHAKE takes as input a byte-string M, an OPTIONAL byte D and a positive integer L
       where<list style="hanging">
         <t hangText="M"> byte-string, is the Message and</t>
         <t hangText="D"> byte in the range [`01`, `02`, ... , `7F`], is an OPTIONAL Domain separation byte and</t>
@@ -227,8 +231,8 @@
 
     <section title="Specifications">
       <t>TurboSHAKE makes use of the permutation Keccak-p[1600,n_r=12],
-      i.e., the permutation used in SHAKE and SHA-3 instances reduced
-      to its last n_r=12 rounds and specified in FIPS 202, sections
+      i.e., the permutation used in SHAKE and SHA-3 functions reduced
+      to its last n_r=12 rounds and specified in FIPS 202, Sections
       3.3 and 3.4 <xref target="FIPS202"></xref>.
       KP denotes this permutation.</t>
 
@@ -236,7 +240,7 @@
       calling this permutation KP with a rate of 168 bytes
       or 1344 bits. It follows that TurboSHAKE128 has a capacity of
       1600 - 1344 = 256 bits or 32 bytes. Respectively to SHAKE256, TurboSHAKE256 makes use
-      of a rate of 136 bytes or 1088 bits, and a capacity of 512 bits or 64 bytes.</t>
+      of a rate of 136 bytes or 1088 bits, and has a capacity of 512 bits or 64 bytes.</t>
 
       <t><figure><artwork><![CDATA[
                          +-------------+--------------+
@@ -272,10 +276,10 @@
         bytes are obtained, interleaved with the application of KP to the state.</t>
       </list></t>
 
-    <t>TurboSHAKE256 performs the same steps but makes use of 136-bytes blocks with respect
+    <t>TurboSHAKE256 performs the same steps but makes use of 136-byte blocks with respect
     to padding, absorbing, and squeezing phases.</t>
 
-    <t>The definition of the function TurboSHAKE equivalently implements the pad10*1 rule.
+    <t>The definition of the TurboSHAKE functions equivalently implements the pad10*1 rule.
     While M can be empty, the D byte always present and is in the `01`-`7F` range.
     This last byte serves as domain separation and integrates the first bit of padding
     of the pad10*1 rule (hence it cannot be `00`).
@@ -735,7 +739,7 @@
     <t>This document is meant to serve as a stable reference and an
     implementation guide for the KangarooTwelve and TurboSHAKE eXtendable Output Functions.
     It relies on the cryptanalysis of Keccak and provides with the same security
-    strength as their respective SHA-3 functions.</t>
+    strength as their respective SHAKE functions.</t>
 
     <t><figure><artwork><![CDATA[
                           +-------------------------------+
@@ -753,7 +757,7 @@
     To be more precise, KangarooTwelve is made of two layers:
     <list style="symbols">
     <t>The inner function TurboSHAKE128. This layer relies on cryptanalysis.
-    TurboSHAKE128 function is exactly Keccak[r=1344, c=256] (as in SHAKE128)
+    The TurboSHAKE128 function is exactly Keccak[r=1344, c=256] (as in SHAKE128)
     reduced to 12 rounds. Any reduced-round cryptanalysis on Keccak
     is also a reduced-round cryptanalysis of TurboSHAKE128
     (provided the number of rounds attacked is not higher than 12).</t>
@@ -884,7 +888,7 @@
       <author>
         <organization>Keccak Team</organization>
       </author>
-      <date year="2017"/>
+      <date year="2022"/>
     </front>
     <seriesInfo name="WWW" value="https://www.keccak.team/third_party.html"/>
   </reference>
@@ -897,7 +901,7 @@
         <author initials="M." surname="Peeters" fullname="Michael Peeters"/>
         <author initials="G." surname="Van Assche" fullname="Gilles Van Assche"/>
         <author initials="R." surname="Van Keer" fullname="Ronny Van Keer"/>
-        <date month="September" year="2018"/>
+        <date month="December" year="2022"/>
       </front>
       <seriesInfo name="WWW" value="https://github.com/XKCP/XKCP"/>
     </reference>
