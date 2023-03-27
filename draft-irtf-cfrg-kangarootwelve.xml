@@ -109,22 +109,22 @@
 
     <t>This document defines the TurboSHAKE128, TurboSHAKE256 <xref target="TURBOSHAKE"></xref> and
     KangarooTwelve <xref target="K12"></xref> eXtendable Output Functions (XOF),
-    i.e., a generalization of a hash function that can return an output of arbitrary length.
+    i.e., a hash function generalization that can return an output of arbitrary length.
     Both TurboSHAKE128 and TurboSHAKE256 are based on a Keccak-p permutation specified in <xref
     target="FIPS202"></xref> and have a higher speed than the SHA-3 and SHAKE functions.</t>
 
-    <t>TurboSHAKE is a sponge function family that makes use of Keccak-p[n_r=12,b=1600], a 12-round-reduced
+    <t>TurboSHAKE is a sponge function family that makes use of Keccak-p[n_r=12,b=1600], a round-reduced
     version of the permutation used in SHA-3. Similarly to the SHAKE's, it proposes two security strength:
     128 bits for TurboSHAKE128 and 256 bits for TurboSHAKE256.
     Halving the number of rounds compared to the original SHAKE functions makes TurboSHAKE roughly two times
     faster.</t>
 
-    <t>The SHA-3 and SHAKE functions process data in a serial manner and are unable to
-    optimally exploit parallelism available in modern CPU architectures.
+    <t>The SHA-3 and SHAKE functions process data in a serial manner and re strongly
+    limited in exploiting available parallelism in modern CPU architectures.
     Similar to ParallelHash <xref target="SP800-185"></xref>, KangarooTwelve splits
-    the input message into fragments to exploit available parallelism. It then
-    applies TurboSHAKE128 on each of them separately before applying
-    TurboSHAKE128 again on the concatenation of the first fragment and the digests.
+    the input message into fragments. It then applies TurboSHAKE128 on each of them
+    separately before applying TurboSHAKE128 again on the combination of the first
+    fragment and the digests.
     It makes use of Sakura coding for ensuring soundness of the tree hashing
     mode <xref target="SAKURA"/>.
     The use of TurboSHAKE128 in KangarooTwelve makes it faster than ParallelHash.</t>
@@ -145,15 +145,14 @@
     allows the use of a customization string.</t>
 
     <t>Unlike any <xref target="FIPS202"></xref> and <xref target="SP800-185"></xref>
-    functions but ParallelHash, KangarooTwelve splits the input message into
-    fragments to exploit available parallelism.</t>
+    functions but ParallelHash, KangarooTwelve exploits available parallelism.</t>
 
     <t>Unlike ParallelHash, KangarooTwelve does not have overhead when
     processing short messages.</t>
 
     <t>The permutation in the TurboSHAKE functions has half
-    the number of rounds compared to the one in the SHA-3 and SHAKE functions, making it faster than any
-    function defined in <xref target="FIPS202"></xref>.
+    the number of rounds compared to the one in the SHA-3 and SHAKE functions,
+    making it faster than any function defined in <xref target="FIPS202"></xref>.
     KangarooTwelve immediately benefits from the same speed up, improving over
     <xref target="FIPS202"></xref> and <xref target="SP800-185"></xref>.</t>
     </list></t>
@@ -218,7 +217,7 @@
       </t>
 
       <t>
-      An instance of TurboSHAKE takes as input a byte-string M, an OPTIONAL byte D and a positive integer L
+      An instance of TurboSHAKE takes as parameters a byte-string M, an OPTIONAL byte D and a positive integer L
       where<list style="hanging">
         <t hangText="M"> byte-string, is the Message and</t>
         <t hangText="D"> byte in the range [`01`, `02`, ... , `7F`], is an OPTIONAL Domain separation byte and</t>
@@ -253,18 +252,18 @@
       </figure></t>
 
       <t>We now describe the operations inside TurboSHAKE128.<list style="symbols">
-        <t>First the message M is appended with the domain separation byte D, forming the input.</t>
+        <t>First the input M' is formed by appending the domain separation byte D to the message M.</t>
 
-        <t>Non-multiple of 168-bytes-length inputs are padded with zeroes to the next
-        multiple of 168 bytes while inputs multiple of 168 bytes are kept as is.
-        Then a byte `80` is XORed to the last byte of the padded message
+        <t>Non-multiple of 168-bytes-length M' are padded with zeroes to the next
+        multiple of 168 bytes while M' multiple of 168 bytes are kept as is.
+        Then a byte `80` is XORed to the last byte of the padded input M'
         and the resulting string is split into a sequence of 168-byte blocks.
         </t>
 
-        <t>Inputs of length 0 bytes do not happen due to the presence of the domain separation byte.</t>
+        <t>M' never has a length of 0 bytes due to the presence of the domain separation byte.</t>
 
         <t>As defined by the sponge construction, the process operates on a state
-        and consists of two phases: the absorbing phase that processes the input
+        and consists of two phases: the absorbing phase that processes the padded input M'
         and the squeezing phase that produces the output.</t>
 
         <t>In the absorbing phase the state is initialized to all-zero. The
@@ -325,7 +324,7 @@
 
     <section title="Interface">
       <t>KangarooTwelve is an eXtendable Output Function (XOF).
-      It takes as input two byte-strings (M, C) and a positive integer L
+      It takes as parameters two byte-strings (M, C) and a positive integer L
       where <list style="hanging">
       <t hangText="M"> byte-string, is the Message and</t>
       <t hangText="C"> byte-string, is an OPTIONAL Customization string and</t>
@@ -337,7 +336,7 @@
         ODI...)</t>
 
         <t>By default, the Customization string is the empty string. For an API that
-        does not support a customization string input, C MUST be the empty string.</t>
+        does not support a customization string parameter, C MUST be the empty string.</t>
     </section>
 
     <section title="Specification">
