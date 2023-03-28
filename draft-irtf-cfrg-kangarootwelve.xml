@@ -119,7 +119,7 @@
     Halving the number of rounds compared to the original SHAKE functions makes TurboSHAKE roughly two times
     faster.</t>
 
-    <t>The SHA-3 and SHAKE functions process data in a serial manner and re strongly
+    <t>The SHA-3 and SHAKE functions process data in a serial manner and are strongly
     limited in exploiting available parallelism in modern CPU architectures.
     Similar to ParallelHash <xref target="SP800-185"></xref>, KangarooTwelve splits
     the input message into fragments. It then applies TurboSHAKE128 on each of them
