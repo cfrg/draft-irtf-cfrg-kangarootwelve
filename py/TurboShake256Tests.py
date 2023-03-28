@@ -80,7 +80,7 @@ def printTestVectors():
         print("TurboSHAKE256(M=pattern 0x00 to 0xFA for 17^{0:d} bytes, D=0x07, 64 output bytes):".format(i))
         outputHex(TurboShake256.TurboSHAKE256(M, 0x7, 64))
     print("TurboSHAKE256(M=empty, D=0x0B, 64 output bytes):")
-    outputHex(TurboShake256.TurboSHAKE256(b'', 0x11, 64))
+    outputHex(TurboShake256.TurboSHAKE256(b'', 0xB, 64))
     for i in range(4):
         M = bytearray([0xFF for j in range(2**i-1)])
         print("TurboSHAKE256(M={0:d} times byte 0xFF, D=0x06, 64 output bytes):".format(2**i-1))

@@ -95,7 +95,7 @@
   TurboSHAKE256 and KangarooTwelve.</t>
 
   <t>All three functions provide efficient and secure hashing primitive,
-  and the later is able to exploit the parallelism of the implementation
+  and the latter is able to exploit the parallelism of the implementation
   in a scalable way.</t>
 
   <t>This document builds up on the definitions of the permutations and of the
@@ -109,53 +109,51 @@
 
     <t>This document defines the TurboSHAKE128, TurboSHAKE256 <xref target="TURBOSHAKE"></xref> and
     KangarooTwelve <xref target="K12"></xref> eXtendable Output Functions (XOF),
-    i.e. a generalization of a hash function that can return an output of arbitrary length.
+    i.e., a hash function generalization that can return an output of arbitrary length.
     Both TurboSHAKE128 and TurboSHAKE256 are based on a Keccak-p permutation specified in <xref
-    target="FIPS202"></xref> and have a higher speed than SHAKE and SHA-3.</t>
+    target="FIPS202"></xref> and have a higher speed than the SHA-3 and SHAKE functions.</t>
 
-    <t>TurboSHAKE is a sponge function which makes use of Keccak-p[n_r=12,b=1600], a 12-round-reduced
-    version of the permutation used in SHA-3. Similarly to SHAKE, it proposes two security strength:
-    128 bit for TurboSHAKE128 and 256 bits for TurboSHAKE256.
-    The number of round being halved of SHAKE makes TurboSHAKE roughtly two-times
-    faster than their SHA-3 equivalent.</t>
+    <t>TurboSHAKE is a sponge function family that makes use of Keccak-p[n_r=12,b=1600], a round-reduced
+    version of the permutation used in SHA-3. Similarly to the SHAKE's, it proposes two security strength:
+    128 bits for TurboSHAKE128 and 256 bits for TurboSHAKE256.
+    Halving the number of rounds compared to the original SHAKE functions makes TurboSHAKE roughly two times
+    faster.</t>
 
-    <t>The SHA-3 functions process data in a serial manner and are unable to
-    optimally exploit parallelism available in modern CPU architectures.
+    <t>The SHA-3 and SHAKE functions process data in a serial manner and are strongly
+    limited in exploiting available parallelism in modern CPU architectures.
     Similar to ParallelHash <xref target="SP800-185"></xref>, KangarooTwelve splits
-    the input message into fragments to exploit available parallelism. It then
-    applies TurboSHAKE128 on each of them separately before applying
-    TurboSHAKE128 again on the concatenation of the first fragment and the digests.
+    the input message into fragments. It then applies TurboSHAKE128 on each of them
+    separately before applying TurboSHAKE128 again on the combination of the first
+    fragment and the digests.
     It makes use of Sakura coding for ensuring soundness of the tree hashing
     mode <xref target="SAKURA"/>.
-    The TurboSHAKE speed-up over SHA-3 directly translates in KangarooTwelve,
-    making it faster than ParallelHash.</t>
+    The use of TurboSHAKE128 in KangarooTwelve makes it faster than ParallelHash.</t>
 
-    <t>The security of both TurboSHAKE128, TurboSHAKE256 and KangarooTwelve builds up on the
+    <t>The security of TurboSHAKE128, TurboSHAKE256 and KangarooTwelve builds up on the
     scrutiny that Keccak has received since its
-    publication <xref target="KECCAK_CRYPTANALYSIS"/>.</t>
+    publication <xref target="KECCAK_CRYPTANALYSIS"/><xref target="TURBOSHAKE"/>.</t>
 
     <t>With respect to <xref target="FIPS202"></xref> and <xref target="SP800-185"></xref>
     functions, TurboSHAKE128, TurboSHAKE256 and KangarooTwelve feature the following advantages:</t>
 
     <t><list style="symbols">
-      <t>Unlike SHA3-224, SHA3-256, SHA3-384, SHA3-512; TurboSHAKE and
-      KangarooTwelve have an extendable output.</t>
+      <t>Unlike SHA3-224, SHA3-256, SHA3-384, SHA3-512, the TurboSHAKE and
+      KangarooTwelve functions have an extendable output.</t>
 
     <t>Unlike any <xref target="FIPS202"></xref> defined function, similarly to
     functions defined in <xref target="SP800-185"></xref>, KangarooTwelve
     allows the use of a customization string.</t>
 
     <t>Unlike any <xref target="FIPS202"></xref> and <xref target="SP800-185"></xref>
-    functions but ParallelHash, KangarooTwelve splits the input message into
-    fragments to exploit available parallelism.</t>
+    functions but ParallelHash, KangarooTwelve exploits available parallelism.</t>
 
     <t>Unlike ParallelHash, KangarooTwelve does not have overhead when
     processing short messages.</t>
 
-    <t>The permutation in TurboSHAKE is Keccak-p[n_r=12] and hence has half
-    the number of rounds of the one used in SHA3, making it faster than any
-    function defined in <xref target="FIPS202"></xref>.
-    KangarooTwelve immediately benefits from this speeds up, improving over
+    <t>The permutation in the TurboSHAKE functions has half
+    the number of rounds compared to the one in the SHA-3 and SHAKE functions,
+    making it faster than any function defined in <xref target="FIPS202"></xref>.
+    KangarooTwelve immediately benefits from the same speed up, improving over
     <xref target="FIPS202"></xref> and <xref target="SP800-185"></xref>.</t>
     </list></t>
 
@@ -214,21 +212,26 @@
   <section title="TurboSHAKE">
     <section title="Interface">
       <t>TurboSHAKE is a family of eXtendable Output Functions (XOF).
-      It takes as input a byte-string M, an OPTIONAL byte D and a positive integer L
+        This document focuses on only two instances, namely, TurboSHAKE128 and TurboSHAKE256,
+        although the original definition includes a wider range of instances parameterized by their capacity <xref target="TURBOSHAKE"/>.
+      </t>
+
+      <t>
+      An instance of TurboSHAKE takes as parameters a byte-string M, an OPTIONAL byte D and a positive integer L
       where<list style="hanging">
         <t hangText="M"> byte-string, is the Message and</t>
         <t hangText="D"> byte in the range [`01`, `02`, ... , `7F`], is an OPTIONAL Domain separation byte and</t>
         <t hangText="L"> positive integer, the requested number of output bytes.</t>
       </list></t>
 
-      <t>By default, the Domain separation byte is `01`. For an API that
-      does not support a domain separation byte, D MUST be the `01`.</t>
+      <t>By default, the Domain separation byte is `1F`. For an API that
+      does not support a domain separation byte, D MUST be the `1F`.</t>
     </section>
 
     <section title="Specifications">
       <t>TurboSHAKE makes use of the permutation Keccak-p[1600,n_r=12],
-      i.e., the permutation used in SHAKE and SHA-3 instances reduced
-      to its last n_r=12 rounds and specified in FIPS 202, sections
+      i.e., the permutation used in SHAKE and SHA-3 functions reduced
+      to its last n_r=12 rounds and specified in FIPS 202, Sections
       3.3 and 3.4 <xref target="FIPS202"></xref>.
       KP denotes this permutation.</t>
 
@@ -236,7 +239,7 @@
       calling this permutation KP with a rate of 168 bytes
       or 1344 bits. It follows that TurboSHAKE128 has a capacity of
       1600 - 1344 = 256 bits or 32 bytes. Respectively to SHAKE256, TurboSHAKE256 makes use
-      of a rate of 136 bytes or 1088 bits, and a capacity of 512 bits or 64 bytes.</t>
+      of a rate of 136 bytes or 1088 bits, and has a capacity of 512 bits or 64 bytes.</t>
 
       <t><figure><artwork><![CDATA[
                          +-------------+--------------+
@@ -249,18 +252,18 @@
       </figure></t>
 
       <t>We now describe the operations inside TurboSHAKE128.<list style="symbols">
-        <t>First the message M is appended with the domain separation byte D, forming the input.</t>
+        <t>First the input M' is formed by appending the domain separation byte D to the message M.</t>
 
-        <t>Non-multiple of 168-bytes-length inputs are padded with zeroes to the next
-        multiple of 168 bytes while inputs multiple of 168 bytes are kept as is.
-        Then a byte `80` is XORed to the last byte of the padded message
+        <t>Non-multiple of 168-bytes-length M' are padded with zeroes to the next
+        multiple of 168 bytes while M' multiple of 168 bytes are kept as is.
+        Then a byte `80` is XORed to the last byte of the padded input M'
         and the resulting string is split into a sequence of 168-byte blocks.
         </t>
 
-        <t>Inputs of length 0 bytes do not happen due to the presence of the domain separation byte.</t>
+        <t>M' never has a length of 0 bytes due to the presence of the domain separation byte.</t>
 
         <t>As defined by the sponge construction, the process operates on a state
-        and consists of two phases: the absorbing phase that processes the input
+        and consists of two phases: the absorbing phase that processes the padded input M'
         and the squeezing phase that produces the output.</t>
 
         <t>In the absorbing phase the state is initialized to all-zero. The
@@ -272,16 +275,16 @@
         bytes are obtained, interleaved with the application of KP to the state.</t>
       </list></t>
 
-    <t>TurboSHAKE256 performs the same steps but makes use of 136-bytes blocks with respect
+    <t>TurboSHAKE256 performs the same steps but makes use of 136-byte blocks with respect
     to padding, absorbing, and squeezing phases.</t>
 
-    <t>The definition of the function TurboSHAKE equivalently implements the pad10*1 rule.
+    <t>The definition of the TurboSHAKE functions equivalently implements the pad10*1 rule.
     While M can be empty, the D byte always present and is in the `01`-`7F` range.
     This last byte serves as domain separation and integrates the first bit of padding
     of the pad10*1 rule (hence it cannot be `00`).
     Additionally, it must leave room for the second bit of padding
     (hence it cannot have the MSB set to 1), should it be the last byte of the block.
-    For more details, refer to Section 6.1 of <xref target="K12"></xref>.</t>
+    For more details, refer to Section 6.1 of <xref target="K12"></xref> and Section 3 of <xref target="TURBOSHAKE"></xref>.</t>
 
     <t>A pseudocode version is available as follows:</t>
 
@@ -321,7 +324,7 @@
 
     <section title="Interface">
       <t>KangarooTwelve is an eXtendable Output Function (XOF).
-      It takes as input two byte-strings (M, C) and a positive integer L
+      It takes as parameters two byte-strings (M, C) and a positive integer L
       where <list style="hanging">
       <t hangText="M"> byte-string, is the Message and</t>
       <t hangText="C"> byte-string, is an OPTIONAL Customization string and</t>
@@ -333,7 +336,7 @@
         ODI...)</t>
 
         <t>By default, the Customization string is the empty string. For an API that
-        does not support a customization string input, C MUST be the empty string.</t>
+        does not support a customization string parameter, C MUST be the empty string.</t>
     </section>
 
     <section title="Specification">
@@ -600,12 +603,6 @@
     `40 22 1A D7 34 F3 ED C1 B1 06 BA D5 0A 72 94 93
      15 B3 52 BA 39 AD 98 B5 B3 C2 30 11 63 AD AA D0`
 
-  TurboSHAKE256(M=`00`^0, D=`07`, 64):
-    `B2 3D 2E 9C EA 9F 49 04 E0 2B EC 06 81 7F C1 0C
-     E3 8C E8 E9 3E F4 C8 9E 65 37 07 6A F8 64 64 04
-     E3 E8 B6 81 07 B8 83 3A 5D 30 49 0A A3 34 82 35
-     3F D4 AD C7 14 8E CB 78 28 55 00 3A AE BD E4 A9`
-
   TurboSHAKE256(M=ptn(17 bytes), D=`07`, 64):
     `66 D3 78 DF E4 E9 02 AC 4E B7 8F 7C 2E 5A 14 F0
      2B C1 C8 49 E6 21 BA E6 65 79 6F B3 34 6E 6C 79
@@ -643,10 +640,10 @@
      B0 79 84 43 31 FE A4 2A 9C 4D 79 BB 8C 5F 9E 73`
 
   TurboSHAKE256(M=`00`^0, D=`0B`, 64):
-    `4C FB 3C A1 0E 97 D3 51 1C F6 1F C5 00 D0 BF 7D
-     0E 0B 7E 6C 2E 6E F6 58 8F 96 24 8E 97 1C 50 26
-     35 59 04 87 8C 01 D4 AD 64 4A 43 31 B2 BB 17 F1
-     B9 63 C7 79 03 1A 7C B3 EE FB 02 66 9B 37 4C 2A`
+    `C7 49 F7 FB 23 64 4A 02 1D 35 65 3D 1B FD F7 47
+     CE CE 5F 97 39 F9 A3 44 AD 16 9F 10 90 6C 68 17
+     C8 EE 12 78 4E 42 FF 57 81 4E FC 1C 89 87 89 D5
+     E4 15 DB 49 05 2E A4 3A 09 90 1D 7A 82 A2 14 5C`
 
   TurboSHAKE256(M=`00`^0, D=`06`, 64):
     `FF 23 DC CD 62 16 8F 5A 44 46 52 49 A8 6D C1 0E
@@ -741,7 +738,7 @@
     <t>This document is meant to serve as a stable reference and an
     implementation guide for the KangarooTwelve and TurboSHAKE eXtendable Output Functions.
     It relies on the cryptanalysis of Keccak and provides with the same security
-    strength as their respective SHA-3 functions.</t>
+    strength as their respective SHAKE functions.</t>
 
     <t><figure><artwork><![CDATA[
                           +-------------------------------+
@@ -759,7 +756,7 @@
     To be more precise, KangarooTwelve is made of two layers:
     <list style="symbols">
     <t>The inner function TurboSHAKE128. This layer relies on cryptanalysis.
-    TurboSHAKE128 function is exactly Keccak[r=1344, c=256] (as in SHAKE128)
+    The TurboSHAKE128 function is exactly Keccak[r=1344, c=256] (as in SHAKE128)
     reduced to 12 rounds. Any reduced-round cryptanalysis on Keccak
     is also a reduced-round cryptanalysis of TurboSHAKE128
     (provided the number of rounds attacked is not higher than 12).</t>
@@ -851,9 +848,9 @@
       <author initials="G." surname="Van Assche" fullname="Gilles Van Assche"/>
       <author initials="R." surname="Van Keer" fullname="Ronny Van Keer"/>
       <author initials="B." surname="Viguier" fullname="Beno&icirc;t Viguier"/>
-      <!-- <date month="July" year="2018"/> -->
+      <date month="March" year="2023"/>
     </front>
-    <seriesInfo name="WWW" value="http://eprint.iacr.org/2023/TO APPEAR"/>
+    <seriesInfo name="WWW" value="http://eprint.iacr.org/2023/342"/>
   </reference>
 
   <reference anchor="K12">
@@ -890,7 +887,7 @@
       <author>
         <organization>Keccak Team</organization>
       </author>
-      <date year="2017"/>
+      <date year="2022"/>
     </front>
     <seriesInfo name="WWW" value="https://www.keccak.team/third_party.html"/>
   </reference>
@@ -903,7 +900,7 @@
         <author initials="M." surname="Peeters" fullname="Michael Peeters"/>
         <author initials="G." surname="Van Assche" fullname="Gilles Van Assche"/>
         <author initials="R." surname="Van Keer" fullname="Ronny Van Keer"/>
-        <date month="September" year="2018"/>
+        <date month="December" year="2022"/>
       </front>
       <seriesInfo name="WWW" value="https://github.com/XKCP/XKCP"/>
     </reference>
