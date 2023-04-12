@@ -95,7 +95,7 @@
   TurboSHAKE256 and KangarooTwelve.</t>
 
   <t>All three functions provide efficient and secure hashing primitives,
-  and the latst is able to exploit the parallelism of the implementation
+  and the last is able to exploit the parallelism of the implementation
   in a scalable way.</t>
 
   <t>This document builds up on the definitions of the permutations and of the
