@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-# Implementation by Gilles Van Assche and Benoit Viguier, hereby denoted as "the implementers".
+# Implementation by Gilles Van Assche, hereby denoted as "the implementer".
 #
 # For more information, feedback or questions, please refer to our website:
 # https://keccak.team/
 #
-# To the extent possible under law, the implementers has waived all copyright
+# To the extent possible under law, the implementer has waived all copyright
 # and related or neighboring rights to the source code in this file.
 # http://creativecommons.org/publicdomain/zero/1.0/
 
@@ -52,24 +52,24 @@ def KeccakP1600(state, nrRounds):
     state = bytearray().join([store64(lanes[x][y]) for y in range(5) for x in range(5)])
     return bytearray(state)
 
-def TurboSHAKE128(inputBytes, delimitedSuffix, outputByteLen):
+def TurboSHAKE(c, M, D, outputByteLen):
     outputBytes = bytearray()
     state = bytearray([0 for i in range(200)])
-    rateInBytes = 1344//8
+    rateInBytes = (1600-c)//8
     blockSize = 0
     inputOffset = 0
     # === Absorb all the input blocks ===
-    while(inputOffset < len(inputBytes)):
-        blockSize = min(len(inputBytes)-inputOffset, rateInBytes)
+    while(inputOffset < len(M)):
+        blockSize = min(len(M)-inputOffset, rateInBytes)
         for i in range(blockSize):
-            state[i] = state[i] ^ inputBytes[i+inputOffset]
+            state[i] = state[i] ^ M[i+inputOffset]
         inputOffset = inputOffset + blockSize
         if (blockSize == rateInBytes):
             state = KeccakP1600(state, 12)
             blockSize = 0
     # === Do the padding and switch to the squeezing phase ===
-    state[blockSize] = state[blockSize] ^ delimitedSuffix
-    if (((delimitedSuffix & 0x80) != 0) and (blockSize == (rateInBytes-1))):
+    state[blockSize] = state[blockSize] ^ D
+    if (((D & 0x80) != 0) and (blockSize == (rateInBytes-1))):
         state = KeccakP1600(state, 12)
     state[rateInBytes-1] = state[rateInBytes-1] ^ 0x80
     state = KeccakP1600(state, 12)
@@ -81,3 +81,9 @@ def TurboSHAKE128(inputBytes, delimitedSuffix, outputByteLen):
         if (outputByteLen > 0):
             state = KeccakP1600(state, 12)
     return outputBytes
+
+def TurboSHAKE128(M, D, outputByteLen):
+    return TurboSHAKE(256, M, D, outputByteLen)
+
+def TurboSHAKE256(M, D, outputByteLen):
+    return TurboSHAKE(512, M, D, outputByteLen)
