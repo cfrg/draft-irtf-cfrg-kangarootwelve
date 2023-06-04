@@ -467,6 +467,31 @@
     </section>
   </section>
 
+  <section title="MAC with Hops">
+    <t>Implementing a MAC with KangarooTwelve SHOULD use a HASH-then-MAC construction.
+      This document recommends a method called HopMAC, defined as follows:</t>
+
+    <t><figure>
+      <artwork><![CDATA[
+    HopMAC(Key, M, C, L) = K12(Key, K12(M, C, 32), L) ]]></artwork>
+      </figure></t>
+
+    <t>Similarly to HMAC, HopMAC consists of two calls: an inner call compressing the
+      message M and the optional customization string C to a digest,
+      and an outer call computing the tag from the key and the digest.</t>
+
+    <t>Unlike HMAC, the inner call to KangarooTwelve in HopMAC is keyless
+      and does not require additional protection against side channel attacks (SCA).
+      Consequently, in an implementation that has to protect the HopMAC key
+      against SCA only the outer call does need protection,
+      and this amounts to a single execution of the underlying permutation.</t>
+
+    <t>In any case, KangarooTwelve MAY be used to compute a MAC with the key
+      reversibly prepended or appended to the input. For instance, one MAY
+      compute a MAC on short messages simply calling KangarooTwelve with the
+      key as the customization string, i.e., MAC = K12(M, Key, L).</t>
+  </section>
+
   <section title="Test vectors">
 
     <t>Test vectors are based on the repetition of the pattern `00 01 .. FA`
@@ -765,28 +790,9 @@
     <t>Furthermore, when the output length is at least 256 bits,
       KangarooTwelve achieves NIST's post-quantum security level 2 <xref target="NISTPQ"/>.</t>
 
-    <t>Implementing a MAC with KangarooTwelve SHOULD use a HASH-then-MAC construction.
-      This document recommends a method called HopMAC, defined as follows:</t>
-
-    <t><figure>
-      <artwork><![CDATA[
-    HopMAC(Key, M, C, L) = K12(Key, K12(M, C, 32), L) ]]></artwork>
-      </figure></t>
-
-    <t>Similarly to HMAC, HopMAC consists of two calls: an inner call compressing the
-      message M and the optional customization string C to a digest,
-      and an outer call computing the tag from the key and the digest.</t>
-
-    <t>Unlike HMAC, the inner call to KangarooTwelve in HopMAC is keyless
-      and does not require additional protection against side channel attacks (SCA).
-      Consequently, in an implementation that has to protect the HopMAC key
-      against SCA only the outer call does need protection,
-      and this amounts to a single execution of the underlying permutation.</t>
-
-    <t>In any case, KangarooTwelve MAY be used to compute a MAC with the key
-      reversibly prepended or appended to the input. For instance, one MAY
-      compute a MAC on short messages simply calling KangarooTwelve with the
-      key as the customization string, i.e., MAC = K12(M, Key, L).</t>
+    <t>At lastly, as KangarooTwelve uses TurboSHAKE128 with three values for D,
+    namely 0x06, 0x07, and 0x0B. Protocols that use both K12 and TurboSHAKE128,
+    SHOULD avoid using these three values for D.</t>
   </section>
 
 <!--
