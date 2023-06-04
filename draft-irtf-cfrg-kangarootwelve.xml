@@ -790,7 +790,7 @@
     <t>Furthermore, when the output length is at least 256 bits,
       KangarooTwelve achieves NIST's post-quantum security level 2 <xref target="NISTPQ"/>.</t>
 
-    <t>At lastly, as KangarooTwelve uses TurboSHAKE128 with three values for D,
+    <t>Lastly, as KangarooTwelve uses TurboSHAKE128 with three values for D,
     namely 0x06, 0x07, and 0x0B. Protocols that use both K12 and TurboSHAKE128,
     SHOULD avoid using these three values for D.</t>
   </section>
