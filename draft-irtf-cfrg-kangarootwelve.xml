@@ -467,7 +467,7 @@
     </section>
   </section>
 
-  <section title="MAC with Hops">
+  <section title="Message authentication codes">
     <t>Implementing a MAC with KangarooTwelve SHOULD use a HASH-then-MAC construction.
       This document recommends a method called HopMAC, defined as follows:</t>
 
@@ -791,7 +791,7 @@
       KangarooTwelve achieves NIST's post-quantum security level 2 <xref target="NISTPQ"/>.</t>
 
     <t>Lastly, as KangarooTwelve uses TurboSHAKE128 with three values for D,
-    namely 0x06, 0x07, and 0x0B. Protocols that use both K12 and TurboSHAKE128,
+    namely 0x06, 0x07, and 0x0B. Protocols that use both KangarooTwelve and TurboSHAKE128,
     SHOULD avoid using these three values for D.</t>
   </section>
 
