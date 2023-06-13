@@ -790,6 +790,9 @@
     <t>Furthermore, when the output length is at least 256 bits,
       KangarooTwelve achieves NIST's post-quantum security level 2 <xref target="NISTPQ"/>.</t>
 
+    <t>As a XOF, KangarooTwelve, TurboSHAKE128 or TurboSHAKE256 can naturally be used as a key derivation function.
+      The input must be an injective encoding of secret and diversification material, and the output can be taken as the derived key(s).</t>
+
     <t>Lastly, as KangarooTwelve uses TurboSHAKE128 with three values for D,
     namely 0x06, 0x07, and 0x0B. Protocols that use both KangarooTwelve and TurboSHAKE128,
     SHOULD avoid using these three values for D.</t>
