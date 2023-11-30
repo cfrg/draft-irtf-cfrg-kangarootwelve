@@ -228,6 +228,12 @@
         <t hangText="L"> positive integer, is the requested number of output bytes.</t>
       </list></t>
 
+      <t>
+      Conceptually, a XOF can be viewed as a hash function with an infinitely long output truncated to L bytes.
+      This means that calling a XOF with the same input but two different lengths yields outputs such that the shorter one is a prefix of the longer one.
+      Specifically, if L1 &lt; L2, then TurboSHAKE(M, D, L1) is the same as the first L1 bytes of TurboSHAKE(M, D, L2).
+      </t>
+
       <t>By default, the Domain separation byte is `1F`. For an API that
       does not support a domain separation byte, D MUST be the `1F`.</t>
       <t>
