@@ -214,7 +214,7 @@
   </section>
 
   <section title="TurboSHAKE">
-    <section title="Interface">
+    <section anchor="TurboSHAKE_Interface" title="Interface">
       <t>TurboSHAKE is a family of eXtendable Output Functions (XOF).
         This document focuses on only two instances, namely, TurboSHAKE128 and TurboSHAKE256,
         although the original definition includes a wider range of instances parameterized by their capacity <xref target="TURBOSHAKE"/>.
@@ -230,6 +230,14 @@
 
       <t>By default, the Domain separation byte is `1F`. For an API that
       does not support a domain separation byte, D MUST be the `1F`.</t>
+
+      <t>
+      Note that an implementation MAY propose an incremental input interface where the input string M is given in pieces.
+      If so, the output MUST be the same as if the function was called with M equal to the concatenation of the different pieces in the order they were given.
+      Independently, an implementation MAY propose an incremental output interface where the output string is requested in pieces of given lengths.
+      When the output is formed by concatenating the pieces in the requested order, it MUST be the same as if the function was called with L equal to the sum of the given lengths.
+      </t>
+
     </section>
 
     <section title="Specifications">
@@ -311,6 +319,8 @@
 
         <t>By default, the Customization string is the empty string. For an API that
         does not support a customization string parameter, C MUST be the empty string.</t>
+
+        <t>Note that an implementation MAY propose an interface with input and/or output incrementality as specified in <xref target="TurboSHAKE_Interface"/>.</t>
     </section>
 
     <section title="Specification">
