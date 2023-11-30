@@ -10,10 +10,26 @@
 
 from __future__ import print_function
 
+def hexString(s):
+    r = ''
+    for i in range(len(s)):
+        if r != '': r = r + ' '
+        r = r + "{0:02X}".format(s[i])
+    return r
+
 def outputHex(s):
     for i in range(len(s)):
         print("{0:02X}".format(s[i]), end=' ')
         if i % 16 == 15:
             print()
     print()
+    print()
+
+def printTestVectorOutput(s):
+    print('    \'', end='')
+    for i in range(len(s)):
+        print("{0:02X}".format(s[i]), end=('\'' if i == len(s) - 1 else ' '))
+        if i % 16 == 15:
+            print()
+            print('     ', end='')
     print()
