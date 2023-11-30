@@ -795,18 +795,31 @@
     </list></t>
     <t>This reasoning is detailed and formalized in <xref target="K12"/>.</t>
 
-    <t>To achieve 128-bit security strength, the output L must be chosen long
+    <t>TurboSHAKE128 and KangarooTwelve aim at 128-bit security.
+    To achieve 128-bit security strength, the output L must be chosen long
     enough so that there are no generic attacks that violate 128-bit security.
     So for 128-bit (second) preimage security the output should be at least 128 bits,
     for 128-bit of security against multi-target preimage attacks with T targets
     the output should be at least 128+log_2(T) bits
-    and for 128-bit collision security the output should be at least 256 bits.</t>
+    and for 128-bit collision security the output should be at least 256 bits.
+    Furthermore, when the output length is at least 256 bits, TurboSHAKE128 and
+    KangarooTwelve achieve NIST's post-quantum security level 2 <xref target="NISTPQ"/>.</t>
 
-    <t>Furthermore, when the output length is at least 256 bits,
-      KangarooTwelve achieves NIST's post-quantum security level 2 <xref target="NISTPQ"/>.</t>
+    <t>Similarly, TurboSHAKE256 aims at 256-bit security.
+    To achieve 256-bit security strength, the output L must be chosen long
+    enough so that there are no generic attacks that violate 256-bit security.
+    So for 256-bit (second) preimage security the output should be at least 256 bits,
+    for 256-bit of security against multi-target preimage attacks with T targets
+    the output should be at least 256+log_2(T) bits
+    and for 256-bit collision security the output should be at least 512 bits.
+    Furthermore, when the output length is at least 512 bits, TurboSHAKE256
+    achieves NIST's post-quantum security level 5 <xref target="NISTPQ"/>.</t>
 
     <t>As a XOF, KangarooTwelve, TurboSHAKE128 or TurboSHAKE256 can naturally be used as a key derivation function.
-      The input must be an injective encoding of secret and diversification material, and the output can be taken as the derived key(s).</t>
+      The input must be an injective encoding of secret and diversification material, and the output can be taken as the derived key(s).
+      The input does not need to be uniformly distributed, e.g., it can be a shared secret produced by
+      the Diffie-Hellman or ECDH protocol, but it needs to have sufficient min-entropy.
+      </t>
 
     <t>Lastly, as KangarooTwelve uses TurboSHAKE128 with three values for D,
     namely 0x06, 0x07, and 0x0B. Protocols that use both KangarooTwelve and TurboSHAKE128,
