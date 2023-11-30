@@ -157,6 +157,18 @@
     <xref target="FIPS202"></xref> and <xref target="SP800-185"></xref>.</t>
     </list></t>
 
+    <t>With respect to SHA-256 and SHA-512 and other <xref target="FIPS180"/> functions, TurboSHAKE128, TurboSHAKE256 and KangarooTwelve feature the following advantages:</t>
+
+    <t><list style="symbols">
+    <t>Unlike <xref target="FIPS180"/> functions, the TurboSHAKE and KangarooTwelve functions have an extendable output.</t>
+
+    <t>The TurboSHAKE functions produce output at the same rate as they process input, whereas SHA-256 and SHA-512 produce output half as fast as they process input.</t>
+
+    <t>Unlike the SHA-256 and SHA-512 functions, KangarooTwelve, TurboSHAKE128 and TurboSHAKE256 do not suffer from the length extension weakness.</t>
+
+    <t>Unlike any <xref target="FIPS180"></xref> functions, KangarooTwelve, TurboSHAKE128 and TurboSHAKE256 use a round function with algebraic degree 2, which makes them more suitable to masking techniques for protections against side-channel attacks.</t>
+    </list></t>
+
     <section title="Conventions">
       <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
       "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
@@ -839,7 +851,9 @@
     Furthermore, when the output length is at least 512 bits, TurboSHAKE256
     achieves NIST's post-quantum security level 5 <xref target="NISTPQ"/>.</t>
 
-    <t>As a XOF, KangarooTwelve, TurboSHAKE128 or TurboSHAKE256 can naturally be used as a key derivation function.
+    <t>
+    Unlike the SHA-256 and SHA-512 functions, KangarooTwelve, TurboSHAKE128 and TurboSHAKE256 do not suffer from the length extension weakness, and therefore do not require the use of the HMAC construction for instance <xref target="FIPS198"/>.
+    Also, they can naturally be used as a key derivation function.
       The input must be an injective encoding of secret and diversification material, and the output can be taken as the derived key(s).
       The input does not need to be uniformly distributed, e.g., it can be a shared secret produced by
       the Diffie-Hellman or ECDH protocol, but it needs to have sufficient min-entropy.
@@ -966,6 +980,28 @@
       <date month="December" year="2016"></date>
     </front>
     <seriesInfo name="WWW" value="https://csrc.nist.gov/CSRC/media/Projects/Post-Quantum-Cryptography/documents/call-for-proposals-final-dec-2016.pdf" />
+  </reference>
+
+  <reference anchor="FIPS180">
+    <front>
+      <title>Secure Hash Standard (SHS)</title>
+      <author>
+        <organization>National Institute of Standards and Technology (NIST)</organization>
+      </author>
+      <date year="2015" month="August"/>
+    </front>
+    <seriesInfo name="FIPS PUB" value="180-4"/>
+  </reference>
+
+  <reference anchor="FIPS198">
+    <front>
+      <title>The Keyed-Hash Message Authentication Code (HMAC)</title>
+      <author>
+        <organization>National Institute of Standards and Technology (NIST)</organization>
+      </author>
+      <date year="2008" month="July"/>
+    </front>
+    <seriesInfo name="FIPS PUB" value="198-1"/>
   </reference>
 
 </references>
