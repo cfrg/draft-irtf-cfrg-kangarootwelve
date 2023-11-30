@@ -225,7 +225,7 @@
       where<list style="hanging">
         <t hangText="M"> byte-string, is the Message and</t>
         <t hangText="D"> byte in the range [`01`, `02`, .. , `7F`], is an OPTIONAL Domain separation byte and</t>
-        <t hangText="L"> positive integer, the requested number of output bytes.</t>
+        <t hangText="L"> positive integer, is the requested number of output bytes.</t>
       </list></t>
 
       <t>By default, the Domain separation byte is `1F`. For an API that
