@@ -230,6 +230,12 @@
 
       <t>By default, the Domain separation byte is `1F`. For an API that
       does not support a domain separation byte, D MUST be the `1F`.</t>
+      <t>
+      The TurboSHAKE instance produces output that is a hash of the (M, D) couple.
+      If D is fixed, this becomes a hash of the M input string.
+      However, a protocol that requires a number of independent hash functions can choose different values for D to implement these.
+      Specifically, for any distinct values D1 and D2, TurboSHAKE(M, D1, L1) and TurboSHAKE(M, D2, L2) yield independent hashes of M.
+      </t>
 
       <t>
       Note that an implementation MAY propose an incremental input interface where the input string M is given in pieces.
@@ -315,7 +321,9 @@
 
         <t>The Customization string MAY serve as domain separation.
         It is typically a short string such as a name or an identifier (e.g. URI,
-        ODI...)</t>
+        ODI...).
+        It can serve the same purpose as TurboSHAKE's D input (see <xref target="TurboSHAKE_Interface"/>), but with a larger range.
+        </t>
 
         <t>By default, the Customization string is the empty string. For an API that
         does not support a customization string parameter, C MUST be the empty string.</t>
