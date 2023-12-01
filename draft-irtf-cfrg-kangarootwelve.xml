@@ -315,7 +315,8 @@
     <t>TurboSHAKE256 performs the same steps but makes use of 136-byte blocks with respect
     to padding, absorbing, and squeezing phases.</t>
 
-    <t>The definition of the TurboSHAKE functions equivalently implements the pad10*1 rule.
+    <t>
+    The definition of the TurboSHAKE functions equivalently implements the pad10*1 rule; see Section 5.1 of <xref target="FIPS202"/> for a definition of pad10*1.
     While M can be empty, the D byte is always present and is in the `01`-`7F` range.
     This last byte serves as domain separation and integrates the first bit of padding
     of the pad10*1 rule (hence it cannot be `00`).
