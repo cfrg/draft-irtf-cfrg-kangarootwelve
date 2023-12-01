@@ -230,6 +230,7 @@
       <t>TurboSHAKE is a family of eXtendable Output Functions (XOF).
         This document focuses on only two instances, namely, TurboSHAKE128 and TurboSHAKE256,
         although the original definition includes a wider range of instances parameterized by their capacity <xref target="TURBOSHAKE"/>.
+        (The capacity is an essential parameter of the sponge construction, see <xref target="FIPS202"/> for more details.)
       </t>
 
       <t>
