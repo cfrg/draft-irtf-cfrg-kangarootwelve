@@ -370,7 +370,7 @@
     |S_(n-1)| <= 8192 bytes ]]></artwork></figure></t>
 
         <t>From S_1 .. S_(n-1), compute the 32-byte Chaining Values CV_1 .. CV_(n-1).
-        In order to be optimally efficient, this computation SHOULD exploit the
+        In order to be optimally efficient, this computation MAY exploit the
         parallelism available on the platform such as SIMD instructions.</t>
 
         <t><figure><artwork><![CDATA[
