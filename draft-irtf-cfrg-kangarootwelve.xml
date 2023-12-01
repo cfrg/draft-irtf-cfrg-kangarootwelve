@@ -798,7 +798,46 @@
   </section>
 
   <section anchor="IANA" title="IANA Considerations">
-    <t>None.</t>
+
+  <section title="Update of the Named Information Hash Algorithm Registry">
+    <t>
+    IANA is requested to create the following entries in the Named Information Hash Algorithm Registry:
+    </t>
+    <t><list style="symbols">
+        <t>TBD1, with "Hash Name String" value set to "k12-256" and "Value Length" value "256 bits", for KangarooTwelve(., C='', 32);</t>
+        <t>TBD2, with "Hash Name String" value set to "turboshake128-256" and "Value Length" value "256 bits" for TurboSHAKE128(., D='1F', 32);</t>
+        <t>TBD3, with "Hash Name String" value set to "turboshake256-512" and "Value Length" value "512 bits" for TurboSHAKE256(., D='1F', 64).</t>
+    </list></t>
+
+    <t>The current entry "k12-512" can be removed.</t>
+  </section>
+
+  <section title="Creation of Named Information Extendable Output Function Algorithm Registry">
+    <t>
+    IANA is suggested to create a new "Named Information Extendable Output Function Algorithm" registery with entries listing extendable output functions (XOFs).
+    An entry must have the following attributes:
+    </t>
+    <t><list style="hanging">
+        <t hangText="ID">The suite ID of the XOF.</t>
+        <t hangText="XOF Name String">The name string of the XOF.</t>
+        <t hangText="Security Strength">The security strength level in bits.</t>
+        <t hangText="Optional Input">The range of possible extra optional input parameters to the XOF for domain separation.</t>
+        <t hangText="Reference">The specification where the XOF is defined.</t>
+        <t hangText="Status">The status that indicates if the algorithm is "current" or "deprecated".</t>
+    </list></t>
+    <t>
+    Initially, the following entries can be put in the Named Information Extendable Output Function Algorithm Registry:
+    </t>
+    <t><list style="symbols">
+        <t>TBD4, with "XOF Name String" value set to "shake128", "Security Strength" value "128 bits", "Extra Input" value "None", "Reference" value "FIPS 202" and "Status" value "current" for SHAKE128;</t>
+        <t>TBD5, with "XOF Name String" value set to "shake256", "Security Strength" value "256 bits", "Extra Input" value "None", "Reference" value "FIPS 202" and "Status" value "current" for SHAKE256;</t>
+        <t>TBD6, with "XOF Name String" value set to "cshake128", "Security Strength" value "128 bits", "Extra Input" value "Function name string N and customization string S", "Reference" value "SP 800-185" and "Status" value "current" for SHAKE128;</t>
+        <t>TBD7, with "XOF Name String" value set to "cshake256", "Security Strength" value "256 bits", "Extra Input" value "Function name string N and customization string S", "Reference" value "SP 800-185" and "Status" value "current" for SHAKE256;</t>
+        <t>TBD8, with "XOF Name String" value set to "turboshake128", "Security Strength" value "128 bits", "Extra Input" value "Domain separation byte D in range '01'-'1F'" and "Status" value "current" for TurboSHAKE128;</t>
+        <t>TBD9, with "XOF Name String" value set to "turboshake256", "Security Strength" value "256 bits", "Extra Input" value "D in range '01'-'1F'" and "Status" value "current" for TurboSHAKE256;</t>
+        <t>TBD10, with "XOF Name String" value set to "k12", "Security Strength" value "128 bits", "Extra Input" value "Customization string C" and "Status" value "current" for KangarooTwelve.</t>
+    </list></t>
+  </section>
   </section>
 
   <section anchor="Security" title="Security Considerations">
