@@ -418,8 +418,8 @@
     +--------------+]]></artwork></figure></t>
 
       <t>The following figure illustrates the computation flow of KangarooTwelve
-      for |S| &gt; 8192 bytes and where TurboSHAKE128 and length_encode( x ) are
-      abbreviated as respectively TSHK128 and l_e( x ) :</t>
+      for |S| &gt; 8192 bytes and where TurboSHAKE128 and length_encode(&#160;x&#160;) are
+      abbreviated as respectively TSHK128 and l_e(&#160;x&#160;) :</t>
 
       <t><figure><artwork><![CDATA[
                                   +--------------+
