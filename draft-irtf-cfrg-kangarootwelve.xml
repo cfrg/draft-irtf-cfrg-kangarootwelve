@@ -129,7 +129,7 @@
     mode <xref target="SAKURA"/>.
     The use of TurboSHAKE128 in KangarooTwelve makes it faster than ParallelHash.</t>
 
-    <t>The security of TurboSHAKE128, TurboSHAKE256 and KangarooTwelve builds up on the
+    <t>The security of TurboSHAKE128, TurboSHAKE256 and KangarooTwelve builds on the public
     scrutiny that Keccak has received since its
     publication <xref target="KECCAK_CRYPTANALYSIS"/><xref target="TURBOSHAKE"/>.</t>
 
@@ -153,7 +153,7 @@
     <t>The permutation in the TurboSHAKE functions has half
     the number of rounds compared to the one in the SHA-3 and SHAKE functions,
     making it faster than any function defined in <xref target="FIPS202"></xref>.
-    KangarooTwelve immediately benefits from the same speed up, improving over
+    KangarooTwelve immediately benefits from the same speedup, improving over
     <xref target="FIPS202"></xref> and <xref target="SP800-185"></xref>.</t>
     </list></t>
 
@@ -228,13 +228,13 @@
   <section title="TurboSHAKE">
     <section anchor="TurboSHAKE_Interface" title="Interface">
       <t>TurboSHAKE is a family of eXtendable Output Functions (XOF).
-        This document focuses on only two instances, namely, TurboSHAKE128 and TurboSHAKE256,
-        although the original definition includes a wider range of instances parameterized by their capacity <xref target="TURBOSHAKE"/>.
-        (The capacity is an essential parameter of the sponge construction, see <xref target="FIPS202"/> for more details.)
+        This document focuses on only two instances, namely, TurboSHAKE128 and TurboSHAKE256.
+        (Note that the original definition includes a wider range of instances parameterized by their capacity <xref target="TURBOSHAKE"/>.
+        The capacity is an essential parameter of the sponge construction, see <xref target="FIPS202"/> for more details.)
       </t>
 
       <t>
-      An instance of TurboSHAKE takes as parameters a byte-string M, an OPTIONAL byte D and a positive integer L
+      An instance of TurboSHAKE takes as inputs a byte-string M, an OPTIONAL byte D and a positive integer L
       where<list style="hanging">
         <t hangText="M"> byte-string, is the Message and</t>
         <t hangText="D"> byte in the range [`01`, `02`, .. , `7F`], is an OPTIONAL Domain separation byte and</t>
@@ -251,7 +251,7 @@
       does not support a domain separation byte, D MUST be the `1F`.</t>
       <t>
       The TurboSHAKE instance produces output that is a hash of the (M, D) couple.
-      If D is fixed, this becomes a hash of the M input string.
+      If D is fixed, this becomes a hash of the Message M.
       However, a protocol that requires a number of independent hash functions can choose different values for D to implement these.
       Specifically, for any distinct values D1 and D2, TurboSHAKE(M, D1, L1) and TurboSHAKE(M, D2, L2) yield independent hashes of M.
       </t>
@@ -332,7 +332,7 @@
 
     <section title="Interface">
       <t>KangarooTwelve is an eXtendable Output Function (XOF).
-      It takes as parameters two byte-strings (M, C) and a positive integer L
+      It takes as inputs two byte-strings (M, C) and a positive integer L
       where <list style="hanging">
       <t hangText="M"> byte-string, is the Message and</t>
       <t hangText="C"> byte-string, is an OPTIONAL Customization string and</t>
@@ -532,9 +532,9 @@
 
   <section title="Test vectors">
 
-    <t>Test vectors are based on the repetition of the pattern `00 01 .. FA`
+    <t>Test vectors are based on the repetition of the pattern `00 01 02 .. F9 FA`
     with a specific length. ptn(n) defines a string by repeating the pattern
-    `00 01 .. FA` as many times as necessary and truncated to n bytes e.g.
+    `00 01 02 .. F9 FA` as many times as necessary and truncated to n bytes e.g.
     </t>
 
     <t><figure><artwork><![CDATA[    Pattern for a length of 17 bytes:
@@ -800,8 +800,7 @@
   <section anchor="Security" title="Security Considerations">
     <t>This document is meant to serve as a stable reference and an
     implementation guide for the KangarooTwelve and TurboSHAKE eXtendable Output Functions.
-    It relies on the cryptanalysis of Keccak and provides with the same security
-    strength as their respective SHAKE functions.</t>
+    The security assurance of these functions relies on the cryptanalysis of reduced-round versions of Keccak and they have the same claimed security strength as their corresponding SHAKE functions.</t>
 
     <t><figure><artwork><![CDATA[
                         +-------------------------------+
@@ -818,10 +817,11 @@
     <t>
     To be more precise, KangarooTwelve is made of two layers:
     <list style="symbols">
-    <t>The inner function TurboSHAKE128. This layer relies on cryptanalysis.
+    <t>The inner function TurboSHAKE128.
+    The security assurance of this layer relies on cryptanalysis.
     The TurboSHAKE128 function is exactly Keccak[r=1344, c=256] (as in SHAKE128)
-    reduced to 12 rounds. Any reduced-round cryptanalysis on Keccak
-    is also a reduced-round cryptanalysis of TurboSHAKE128
+    reduced to 12 rounds.
+    Any cryptanalysis of reduced-round Keccak is also cryptanalysis of reduced-round TurboSHAKE128
     (provided the number of rounds attacked is not higher than 12).</t>
     <t>The tree hashing over TurboSHAKE128. This layer is a mode on top
     of TurboSHAKE128 that does not introduce any vulnerability thanks to
@@ -833,7 +833,7 @@
     To achieve 128-bit security strength, the output L must be chosen long
     enough so that there are no generic attacks that violate 128-bit security.
     So for 128-bit (second) preimage security the output should be at least 128 bits,
-    for 128-bit of security against multi-target preimage attacks with T targets
+    for 128 bits of security against multi-target preimage attacks with T targets
     the output should be at least 128+log_2(T) bits
     and for 128-bit collision security the output should be at least 256 bits.
     Furthermore, when the output length is at least 256 bits, TurboSHAKE128 and
@@ -843,14 +843,14 @@
     To achieve 256-bit security strength, the output L must be chosen long
     enough so that there are no generic attacks that violate 256-bit security.
     So for 256-bit (second) preimage security the output should be at least 256 bits,
-    for 256-bit of security against multi-target preimage attacks with T targets
+    for 256 bits of security against multi-target preimage attacks with T targets
     the output should be at least 256+log_2(T) bits
     and for 256-bit collision security the output should be at least 512 bits.
     Furthermore, when the output length is at least 512 bits, TurboSHAKE256
     achieves NIST's post-quantum security level 5 <xref target="NISTPQ"/>.</t>
 
     <t>
-    Unlike the SHA-256 and SHA-512 functions, KangarooTwelve, TurboSHAKE128 and TurboSHAKE256 do not suffer from the length extension weakness, and therefore do not require the use of the HMAC construction for instance <xref target="FIPS198"/>.
+    Unlike the SHA-256 and SHA-512 functions, KangarooTwelve, TurboSHAKE128 and TurboSHAKE256 do not suffer from the length extension weakness, and therefore do not require the use of the HMAC construction for instance when used for MAC computation <xref target="FIPS198"/>.
     Also, they can naturally be used as a key derivation function.
       The input must be an injective encoding of secret and diversification material, and the output can be taken as the derived key(s).
       The input does not need to be uniformly distributed, e.g., it can be a shared secret produced by
