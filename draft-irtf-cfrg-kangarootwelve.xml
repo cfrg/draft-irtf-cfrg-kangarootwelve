@@ -342,13 +342,13 @@
         <t>The Customization string MAY serve as domain separation.
         It is typically a short string such as a name or an identifier (e.g. URI,
         ODI...).
-        It can serve the same purpose as TurboSHAKE's D input parameters (see <xref target="TurboSHAKE_Interface"/>), but with a larger range.
+        It can serve the same purpose as TurboSHAKE's D input parameter (see <xref target="TurboSHAKE_Interface"/>), but with a larger range.
         </t>
 
         <t>By default, the Customization string is the empty string. For an API that
         does not support a customization string parameter, C MUST be the empty string.</t>
 
-        <t>Note that an implementation MAY propose an interface with input parameters and/or output incrementality as specified in <xref target="TurboSHAKE_Interface"/>.</t>
+        <t>Note that an implementation MAY propose an interface with input and/or output incrementality as specified in <xref target="TurboSHAKE_Interface"/>.</t>
     </section>
 
     <section title="Specification">
