@@ -66,18 +66,18 @@ def performShortTestTurboSHAKE256():
 #performShortTestTurboSHAKE256()
 
 def printTestVectors():
-    print("  TurboSHAKE256(M='00'^0, D='1F', 64):")
+    print("  TurboSHAKE256(M=`00`^0, D=`1F`, 64):")
     printTestVectorOutput(TurboSHAKE256(b'', 0x1F, 64))
-    print("  TurboSHAKE256(M='00'^0, D='1F', 10032), last 32 bytes:")
+    print("  TurboSHAKE256(M=`00`^0, D=`1F`, 10032), last 32 bytes:")
     printTestVectorOutput(TurboSHAKE256(b'', 0x1F, 10032)[10000:])
     for i in range(7):
         M = bytearray([(j % 251) for j in range(17**i)])
-        print("  TurboSHAKE256(M=ptn(17**{0:d} bytes), D='1F', 64):".format(i))
+        print("  TurboSHAKE256(M=ptn(17**{0:d} bytes), D=`1F`, 64):".format(i))
         printTestVectorOutput(TurboSHAKE256(M, 0x1F, 64))
     for D in [0x01, 0x06, 0x07, 0x0B, 0x30, 0x7F]:
         i = D%3 + 1
         M = bytearray([0xFF for j in range(2**i-1)])
-        print("  TurboSHAKE256(M='{0}', D='{1:02X}', 64):".format(hexString(M), D))
+        print("  TurboSHAKE256(M=`{0}`, D=`{1:02X}`, 64):".format(hexString(M), D))
         printTestVectorOutput(TurboSHAKE256(M, D, 64))
 
 printTestVectors()

@@ -26,9 +26,9 @@ def outputHex(s):
     print()
 
 def printTestVectorOutput(s):
-    print('    \'', end='')
+    print('    `', end='')
     for i in range(len(s)):
-        print("{0:02X}".format(s[i]), end=('\'' if i == len(s) - 1 else ' '))
+        print("{0:02X}".format(s[i]), end=('`' if i == len(s) - 1 else ' '))
         if i % 16 == 15:
             print()
             print('     ', end='')
