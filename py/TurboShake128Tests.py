@@ -10,7 +10,7 @@
 
 from __future__ import print_function
 from TurboSHAKE import TurboSHAKE128
-from Utils import outputHex
+from Utils import hexString, printTestVectorOutput
 
 def generateSimpleRawMaterial(length, seed1, seed2):
     seed2 = seed2 % 8
@@ -66,21 +66,20 @@ def performShortTestTurboSHAKE128():
 #performShortTestTurboSHAKE128()
 
 def printTestVectors():
-    print("TurboSHAKE128(M=empty, D=0x07, 32 output bytes):")
-    outputHex(TurboSHAKE128(b'', 0x7, 32))
-    print("TurboSHAKE128(M=empty, D=0x07, 64 output bytes):")
-    outputHex(TurboSHAKE128(b'', 0x7, 64))
-    print("TurboSHAKE128(M=empty, D=0x07, 10032 output bytes), last 32 bytes:")
-    outputHex(TurboSHAKE128(b'', 0x7, 10032)[10000:])
+    print("  TurboSHAKE128(M=`00`^0, D=`1F`, 32):")
+    printTestVectorOutput(TurboSHAKE128(b'', 0x1F, 32))
+    print("  TurboSHAKE128(M=`00`^0, D=`1F`, 64):")
+    printTestVectorOutput(TurboSHAKE128(b'', 0x1F, 64))
+    print("  TurboSHAKE128(M=`00`^0, D=`1F`, 10032), last 32 bytes:")
+    printTestVectorOutput(TurboSHAKE128(b'', 0x1F, 10032)[10000:])
     for i in range(7):
         M = bytearray([(j % 251) for j in range(17**i)])
-        print("TurboSHAKE128(M=pattern 0x00 to 0xFA for 17^{0:d} bytes, D=0x07, 32 output bytes):".format(i))
-        outputHex(TurboSHAKE128(M, 0x7, 32))
-    print("TurboSHAKE128(M=empty, D=0x0B, 32 output bytes):")
-    outputHex(TurboSHAKE128(b'', 0xB, 32))
-    for i in range(4):
+        print("  TurboSHAKE128(M=ptn(17**{0:d} bytes), D=`1F`, 32):".format(i))
+        printTestVectorOutput(TurboSHAKE128(M, 0x1F, 32))
+    for D in [0x01, 0x06, 0x07, 0x0B, 0x30, 0x7F]:
+        i = D%3 + 1
         M = bytearray([0xFF for j in range(2**i-1)])
-        print("TurboSHAKE128(M={0:d} times byte 0xFF, D=0x06, 32 output bytes):".format(2**i-1))
-        outputHex(TurboSHAKE128(M, 0x6, 32))
+        print("  TurboSHAKE128(M=`{0}`, D=`{1:02X}`, 32):".format(hexString(M), D))
+        printTestVectorOutput(TurboSHAKE128(M, D, 32))
 
 printTestVectors()
