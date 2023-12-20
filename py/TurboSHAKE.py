@@ -87,3 +87,162 @@ def TurboSHAKE128(M, D, outputByteLen):
 
 def TurboSHAKE256(M, D, outputByteLen):
     return TurboSHAKE(512, M, D, outputByteLen)
+
+class TurboSHAKEAbosrb:
+    '''TurboSHAKE in the absorb state.'''
+
+    def __init__(self, c, D):
+        '''
+        Initialize the absorb state with capacity `c` (number of bits) and
+        domain separation byte `D`.
+        '''
+        self.D = D
+        self.rateInBytes = (1600-c)//8
+        self.state = bytearray([0 for i in range(200)])
+        self.stateOffset = 0
+
+    def update(self, M):
+        '''
+        Update the absorb state with message fragment `M`.
+        '''
+        inputOffset = 0
+        while inputOffset < len(M):
+            length = len(M)-inputOffset
+            blockSize = min(length, self.rateInBytes-self.stateOffset)
+            for i in range(blockSize):
+                self.state[i+self.stateOffset] ^= M[i+inputOffset]
+            inputOffset += blockSize
+            self.stateOffset += blockSize
+            if self.stateOffset == self.rateInBytes:
+                self.state = KeccakP1600(self.state, 12)
+                self.stateOffset = 0
+
+    def squeeze(self):
+        '''
+        Consume the absorb state and return the TurboSHAKE squeeze state.
+        '''
+        state = self.state[:]  # deep copy
+        state[self.stateOffset] ^= self.D
+        if (((self.D & 0x80) != 0) and \
+            (self.stateOffset == (self.rateInBytes-1))):
+            state = KeccakP1600(state, 12)
+        state[self.rateInBytes-1] = state[self.rateInBytes-1] ^ 0x80
+        state = KeccakP1600(state, 12)
+
+        squeeze = TurboSHAKESqueeze()
+        squeeze.rateInBytes = self.rateInBytes
+        squeeze.state = state
+        squeeze.stateOffset = 0
+        return squeeze
+
+class TurboSHAKESqueeze:
+    '''TurboSHAKE in the squeeze state.'''
+
+    def next(self, length):
+        '''
+        Return the next `length` bytes of output and update the squeeze state.
+        '''
+        outputBytes = bytearray()
+        while length > 0:
+             blockSize = min(length, self.rateInBytes-self.stateOffset)
+             length -= blockSize
+             outputBytes += \
+                 self.state[self.stateOffset:self.stateOffset+blockSize]
+             self.stateOffset += blockSize
+             if self.stateOffset == self.rateInBytes:
+                self.state = KeccakP1600(self.state, 12)
+                self.stateOffset = 0
+        return outputBytes
+
+def NewTurboSHAKE128(D):
+    '''
+    Return the absorb state for TurboSHAKE128 with domain separation byte `D`.
+    '''
+    return TurboSHAKEAbosrb(256, D)
+
+def NewTurboSHAKE256(D):
+    '''
+    Return the absorb state for TurboSHAKE256 with domain separation byte `D`.
+    '''
+    return TurboSHAKEAbosrb(512, D)
+
+def testAPI(stateful, oneshot):
+    '''Test that the outputs of the stateful and oneshot APIs match.'''
+
+    testCases = [
+        {
+            'fragments': [],
+            'lengths': [],
+        },
+        {
+            'fragments': [],
+            'lengths': [
+                1000,
+            ],
+        },
+        {
+            'fragments': [
+                b'\xff' * 500,
+            ],
+            'lengths': [
+                12,
+            ],
+        },
+        {
+            'fragments': [
+                b'hello',
+                b', ',
+                b'',
+                b'world',
+            ],
+            'lengths': [
+                1,
+                17,
+                256,
+                128,
+                0,
+                7,
+                14,
+            ],
+        },
+        {
+            'fragments': [
+                b'\xff' * 1024,
+                b'\x17' * 23,
+                b'',
+                b'\xf1' * 512,
+            ],
+            'lengths': [
+                1000,
+                0,
+                0,
+                14,
+            ],
+
+        }
+    ]
+
+    D = 99
+    for (i, testCase) in enumerate(testCases):
+        absorb = stateful(D)
+        message = bytearray()
+        for fragment in testCase['fragments']:
+            absorb.update(fragment)
+            message += fragment
+        squeeze = absorb.squeeze()
+        outputBytes = b''
+        outputByteLen = 0
+        for length in testCase['lengths']:
+            outputBytes += squeeze.next(length)
+            outputByteLen += length
+        expectedOutputBytes = oneshot(message, D, outputByteLen)
+        if outputBytes != expectedOutputBytes:
+            raise Exception('test case {} failed: got {}; want {}'.format(
+                i,
+                outputBytes.hex(),
+                expectedOutputBytes.hex(),
+            ))
+
+if __name__ == '__main__':
+    testAPI(NewTurboSHAKE128, TurboSHAKE128)
+    testAPI(NewTurboSHAKE256, TurboSHAKE256)
