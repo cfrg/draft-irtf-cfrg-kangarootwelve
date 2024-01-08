@@ -90,11 +90,11 @@
     <keyword>eXtendable Output Function</keyword>
 
   <abstract>
-  <t>This document defines three eXtendable Output Functions (XOF),
+  <t>This document defines four eXtendable Output Functions (XOF),
   hash functions with output of arbitrary length, named TurboSHAKE128,
-  TurboSHAKE256 and KangarooTwelve.</t>
+  TurboSHAKE256, KT128 and KT256.</t>
 
-  <t>All three functions provide efficient and secure hashing primitives,
+  <t>All four functions provide efficient and secure hashing primitives,
   and the last is able to exploit the parallelism of the implementation
   in a scalable way.</t>
 
@@ -107,8 +107,8 @@
 <middle>
   <section title="Introduction">
 
-    <t>This document defines the TurboSHAKE128, TurboSHAKE256 <xref target="TURBOSHAKE"></xref> and
-    KangarooTwelve <xref target="K12"></xref> eXtendable Output Functions (XOF),
+    <t>This document defines the TurboSHAKE128, TurboSHAKE256 <xref target="TURBOSHAKE"></xref>,
+    KT128 and KT256 <xref target="KT"></xref> eXtendable Output Functions (XOF),
     i.e., a hash function generalization that can return an output of arbitrary length.
     Both TurboSHAKE128 and TurboSHAKE256 are based on a Keccak-p permutation specified in <xref
     target="FIPS202"></xref> and have a higher speed than the SHA-3 and SHAKE functions.</t>
@@ -119,22 +119,30 @@
     Halving the number of rounds compared to the original SHAKE functions makes TurboSHAKE roughly twice
     faster.</t>
 
-    <t>The SHA-3 and SHAKE functions process data in a serial manner and are strongly
+    <t>
+    KangarooTwelve is a sponge function family consisting of KT128 and KT256.
+    Note that <xref target="KT"></xref> only defined KT128 under the name KangarooTwelve.
+    KT256 is defined in this document.
+    </t>
+
+    <t>
+    The SHA-3 and SHAKE functions process data in a serial manner and are strongly
     limited in exploiting available parallelism in modern CPU architectures.
     Similar to ParallelHash <xref target="SP800-185"></xref>, KangarooTwelve splits
-    the input message into fragments. It then applies TurboSHAKE128 on each of them
-    separately before applying TurboSHAKE128 again on the combination of the first
+    the input message into fragments. It then applies TurboSHAKE on each of them
+    separately before applying TurboSHAKE again on the combination of the first
     fragment and the digests.
-    It makes use of Sakura coding for ensuring soundness of the tree hashing
+    More precisely, KT128 uses TurboSHAKE128 and KT256 uses TurboSHAKE256.
+    They make use of Sakura coding for ensuring soundness of the tree hashing
     mode <xref target="SAKURA"/>.
-    The use of TurboSHAKE128 in KangarooTwelve makes it faster than ParallelHash.</t>
+    The use of TurboSHAKE in KangarooTwelve makes it faster than ParallelHash.</t>
 
-    <t>The security of TurboSHAKE128, TurboSHAKE256 and KangarooTwelve builds on the public
+    <t>The security of TurboSHAKE128, TurboSHAKE256, KT128 and KT256 builds on the public
     scrutiny that Keccak has received since its
     publication <xref target="KECCAK_CRYPTANALYSIS"/><xref target="TURBOSHAKE"/>.</t>
 
     <t>With respect to <xref target="FIPS202"></xref> and <xref target="SP800-185"></xref>
-    functions, TurboSHAKE128, TurboSHAKE256 and KangarooTwelve feature the following advantages:</t>
+    functions, TurboSHAKE128, TurboSHAKE256, KT128 and KT256 feature the following advantages:</t>
 
     <t><list style="symbols">
       <t>Unlike SHA3-224, SHA3-256, SHA3-384, SHA3-512, the TurboSHAKE and
@@ -157,16 +165,16 @@
     <xref target="FIPS202"></xref> and <xref target="SP800-185"></xref>.</t>
     </list></t>
 
-    <t>With respect to SHA-256 and SHA-512 and other <xref target="FIPS180"/> functions, TurboSHAKE128, TurboSHAKE256 and KangarooTwelve feature the following advantages:</t>
+    <t>With respect to SHA-256 and SHA-512 and other <xref target="FIPS180"/> functions, TurboSHAKE128, TurboSHAKE256, KT128 and KT256 feature the following advantages:</t>
 
     <t><list style="symbols">
     <t>Unlike <xref target="FIPS180"/> functions, the TurboSHAKE and KangarooTwelve functions have an extendable output.</t>
 
     <t>The TurboSHAKE functions produce output at the same rate as they process input, whereas SHA-256 and SHA-512 produce output half as fast as they process input.</t>
 
-    <t>Unlike the SHA-256 and SHA-512 functions, KangarooTwelve, TurboSHAKE128 and TurboSHAKE256 do not suffer from the length extension weakness.</t>
+    <t>Unlike the SHA-256 and SHA-512 functions, TurboSHAKE128, TurboSHAKE256, KT128 and KT256 do not suffer from the length extension weakness.</t>
 
-    <t>Unlike any <xref target="FIPS180"></xref> functions, KangarooTwelve, TurboSHAKE128 and TurboSHAKE256 use a round function with algebraic degree 2, which makes them more suitable to masking techniques for protections against side-channel attacks.</t>
+    <t>Unlike any <xref target="FIPS180"></xref> functions, TurboSHAKE128, TurboSHAKE256, KT128 and KT256 use a round function with algebraic degree 2, which makes them more suitable to masking techniques for protections against side-channel attacks.</t>
     </list></t>
 
     <section title="Conventions">
@@ -322,17 +330,17 @@
     of the pad10*1 rule (hence it cannot be `00`).
     Additionally, it must leave room for the second bit of padding
     (hence it cannot have the MSB set to 1), should it be the last byte of the block.
-    For more details, refer to Section 6.1 of <xref target="K12"></xref> and Section 3 of <xref target="TURBOSHAKE"></xref>.</t>
+    For more details, refer to Section 6.1 of <xref target="KT"></xref> and Section 3 of <xref target="TURBOSHAKE"></xref>.</t>
 
     <t>The pseudocode versions of TurboSHAKE128 and TurboSHAKE256 are provided respectively in <xref target="TSHK128_PC"/> and <xref target="TSHK256_PC"/>.</t>
     </section>
   </section>
 
-  <section title="KangarooTwelve: Tree hashing over TurboSHAKE128">
+  <section title="KangarooTwelve: Tree hashing over TurboSHAKE">
 
     <section title="Interface">
-      <t>KangarooTwelve is an eXtendable Output Function (XOF).
-      It takes as input parameters two byte-strings (M, C) and a positive integer L
+      <t>KangarooTwelve is a family of eXtendable Output Functions (XOF) consisting of the KT128 and KT256 instances.
+      A KangarooTwelve instance takes as input parameters two byte-strings (M, C) and a positive integer L
       where <list style="hanging">
       <t hangText="M"> byte-string, is the Message and</t>
       <t hangText="C"> byte-string, is an OPTIONAL Customization string and</t>
@@ -351,8 +359,8 @@
         <t>Note that an implementation MAY propose an interface with input and/or output incrementality as specified in <xref target="TurboSHAKE_Interface"/>.</t>
     </section>
 
-    <section title="Specification">
-        <t>On top of the sponge function TurboSHAKE128, KangarooTwelve uses a
+    <section title="Specification of KT128">
+        <t>On top of the sponge function TurboSHAKE128, KT128 uses a
         Sakura-compatible tree hash mode <xref target="SAKURA"></xref>.
         First, merge M and the OPTIONAL C to a single input string S in a
         reversible way. length_encode( |C| ) gives the length in bytes of C as a
@@ -390,14 +398,14 @@
     FinalNode = FinalNode || length_encode(n-1)
     FinalNode = FinalNode || `FF FF`]]></artwork></figure></t>
 
-        <t>Finally, KangarooTwelve output is retrieved:
+        <t>Finally, the KT128 output is retrieved:
         <list style="symbols">
             <t>If |S| &lt;= 8192 bytes, from TurboSHAKE128( FinalNode, `07`, L )</t>
         </list></t>
 
         <t><figure>
         <artwork><![CDATA[
-    KangarooTwelve( M, C, L ) = TurboSHAKE128( FinalNode, `07`, L )]]>
+    KT128( M, C, L ) = TurboSHAKE128( FinalNode, `07`, L )]]>
         </artwork></figure></t>
 
       <t><list style="symbols">
@@ -406,10 +414,10 @@
 
       <t><figure>
       <artwork><![CDATA[
-    KangarooTwelve( M, C, L ) = TurboSHAKE128( FinalNode, `06`, L )]]>
+    KT128( M, C, L ) = TurboSHAKE128( FinalNode, `06`, L )]]>
       </artwork></figure></t>
 
-      <t>The following figure illustrates the computation flow of KangarooTwelve
+      <t>The following figure illustrates the computation flow of KT128
       for |S| &lt;= 8192 bytes:</t>
 
         <t><figure><artwork><![CDATA[
@@ -417,7 +425,7 @@
     |      S       |----------------------------->  output
     +--------------+]]></artwork></figure></t>
 
-      <t>The following figure illustrates the computation flow of KangarooTwelve
+      <t>The following figure illustrates the computation flow of KT128
       for |S| &gt; 8192 bytes and where TurboSHAKE128 and length_encode(&#160;x&#160;) are
       abbreviated as respectively TSHK128 and l_e(&#160;x&#160;) :</t>
 
@@ -454,7 +462,7 @@
                                          | TSHK128(.., `06`, L)
                                          +-------------------->  output]]></artwork></figure></t>
 
-      <t>A pseudocode version is provided in <xref target="K12_PC"/>.</t>
+      <t>A pseudocode version is provided in <xref target="KT128_PC"/>.</t>
 
       <t>The table below gathers the values of the domain separation
       bytes used by the tree hash mode:</t>
@@ -503,6 +511,19 @@
     end]]></artwork></figure></t>
 
     </section>
+
+    <section title="Specification of KT256">
+      <t>KT256 is specified exactly like KT128, with two differences:</t>
+      <list style="symbols">
+        <t>All the calls to TurboSHAKE128 in KT128 are replaced with calls to TurboSHAKE256 in KT256.</t>
+        <t>The chaining values CV_1 to CV_(n-1) are 64-byte long in KT256 and are computed as follows:
+      </list>
+        <t><figure><artwork><![CDATA[
+    CV_i = TurboSHAKE256( S_i, `0B`, 64 )]]></artwork></figure></t>
+
+      <t>A pseudocode version is provided in <xref target="KT256_PC"/>.</t>
+
+    </section>
   </section>
 
   <section title="Message authentication codes">
@@ -511,7 +532,8 @@
 
     <t><figure>
       <artwork><![CDATA[
-    HopMAC(Key, M, C, L) = K12(Key, K12(M, C, 32), L) ]]></artwork>
+    HopMAC128(Key, M, C, L) = KT128(Key, KT128(M, C, 32), L)
+    HopMAC256(Key, M, C, L) = KT256(Key, KT256(M, C, 64), L)]]></artwork>
       </figure></t>
 
     <t>Similarly to HMAC, HopMAC consists of two calls: an inner call compressing the
@@ -527,7 +549,7 @@
     <t>In any case, KangarooTwelve MAY be used to compute a MAC with the key
       reversibly prepended or appended to the input. For instance, one MAY
       compute a MAC on short messages simply calling KangarooTwelve with the
-      key as the customization string, i.e., MAC = K12(M, Key, L).</t>
+      key as the customization string, i.e., MAC = KT128(M, Key, L).</t>
   </section>
 
   <section title="Test vectors">
@@ -722,79 +744,191 @@
      CF 7E D9 11 0B A9 7C E0 38 8D 07 4B AC 76 87 76`
 ]]></artwork></figure></t>
 
-    <t><figure><artwork><![CDATA[  KangarooTwelve(M=`00`^0, C=`00`^0, 32):
+    <t><figure><artwork><![CDATA[  KT128(M=`00`^0, C=`00`^0, 32):
     `1A C2 D4 50 FC 3B 42 05 D1 9D A7 BF CA 1B 37 51
      3C 08 03 57 7A C7 16 7F 06 FE 2C E1 F0 EF 39 E5`
 
-  KangarooTwelve(M=`00`^0, C=`00`^0, 64):
+  KT128(M=`00`^0, C=`00`^0, 64):
     `1A C2 D4 50 FC 3B 42 05 D1 9D A7 BF CA 1B 37 51
      3C 08 03 57 7A C7 16 7F 06 FE 2C E1 F0 EF 39 E5
      42 69 C0 56 B8 C8 2E 48 27 60 38 B6 D2 92 96 6C
      C0 7A 3D 46 45 27 2E 31 FF 38 50 81 39 EB 0A 71`
 
-  KangarooTwelve(M=`00`^0, C=`00`^0, 10032), last 32 bytes:
+  KT128(M=`00`^0, C=`00`^0, 10032), last 32 bytes:
     `E8 DC 56 36 42 F7 22 8C 84 68 4C 89 84 05 D3 A8
      34 79 91 58 C0 79 B1 28 80 27 7A 1D 28 E2 FF 6D`
 
-  KangarooTwelve(M=ptn(1 bytes), C=`00`^0, 32):
+  KT128(M=ptn(1 bytes), C=`00`^0, 32):
     `2B DA 92 45 0E 8B 14 7F 8A 7C B6 29 E7 84 A0 58
      EF CA 7C F7 D8 21 8E 02 D3 45 DF AA 65 24 4A 1F`
 
-  KangarooTwelve(M=ptn(17 bytes), C=`00`^0, 32):
+  KT128(M=ptn(17 bytes), C=`00`^0, 32):
     `6B F7 5F A2 23 91 98 DB 47 72 E3 64 78 F8 E1 9B
      0F 37 12 05 F6 A9 A9 3A 27 3F 51 DF 37 12 28 88`
 
-  KangarooTwelve(M=ptn(17**2 bytes), C=`00`^0, 32):
+  KT128(M=ptn(17**2 bytes), C=`00`^0, 32):
     `0C 31 5E BC DE DB F6 14 26 DE 7D CF 8F B7 25 D1
      E7 46 75 D7 F5 32 7A 50 67 F3 67 B1 08 EC B6 7C`
 
-  KangarooTwelve(M=ptn(17**3 bytes), C=`00`^0, 32):
+  KT128(M=ptn(17**3 bytes), C=`00`^0, 32):
     `CB 55 2E 2E C7 7D 99 10 70 1D 57 8B 45 7D DF 77
      2C 12 E3 22 E4 EE 7F E4 17 F9 2C 75 8F 0D 59 D0`
 
-  KangarooTwelve(M=ptn(17**4 bytes), C=`00`^0, 32):
+  KT128(M=ptn(17**4 bytes), C=`00`^0, 32):
     `87 01 04 5E 22 20 53 45 FF 4D DA 05 55 5C BB 5C
      3A F1 A7 71 C2 B8 9B AE F3 7D B4 3D 99 98 B9 FE`
 
-  KangarooTwelve(M=ptn(17**5 bytes), C=`00`^0, 32):
+  KT128(M=ptn(17**5 bytes), C=`00`^0, 32):
     `84 4D 61 09 33 B1 B9 96 3C BD EB 5A E3 B6 B0 5C
      C7 CB D6 7C EE DF 88 3E B6 78 A0 A8 E0 37 16 82`
 
-  KangarooTwelve(M=ptn(17**6 bytes), C=`00`^0, 32):
+  KT128(M=ptn(17**6 bytes), C=`00`^0, 32):
     `3C 39 07 82 A8 A4 E8 9F A6 36 7F 72 FE AA F1 32
      55 C8 D9 58 78 48 1D 3C D8 CE 85 F5 8E 88 0A F8`
 
-  KangarooTwelve(M=`00`^0, C=ptn(1 bytes), 32):
+  KT128(`00`^0, C=ptn(1 bytes), 32):
     `FA B6 58 DB 63 E9 4A 24 61 88 BF 7A F6 9A 13 30
      45 F4 6E E9 84 C5 6E 3C 33 28 CA AF 1A A1 A5 83`
 
-  KangarooTwelve(M=`FF`, C=ptn(41 bytes), 32):
+  KT128(`FF`, C=ptn(41 bytes), 32):
     `D8 48 C5 06 8C ED 73 6F 44 62 15 9B 98 67 FD 4C
      20 B8 08 AC C3 D5 BC 48 E0 B0 6B A0 A3 76 2E C4`
 
-  KangarooTwelve(M=`FF FF FF`, C=ptn(41**2), 32):
+  KT128(`FF FF FF`, C=ptn(41**2 bytes), 32):
     `C3 89 E5 00 9A E5 71 20 85 4C 2E 8C 64 67 0A C0
      13 58 CF 4C 1B AF 89 44 7A 72 42 34 DC 7C ED 74`
 
-  KangarooTwelve(M=`FF FF FF FF FF FF FF`, C=ptn(41**3 bytes), 32):
+  KT128(`FF FF FF FF FF FF FF`, C=ptn(41**3 bytes), 32):
     `75 D2 F8 6A 2E 64 45 66 72 6B 4F BC FC 56 57 B9
      DB CF 07 0C 7B 0D CA 06 45 0A B2 91 D7 44 3B CF`
 
-  KangarooTwelve(M=ptn(8191 bytes), C=`00`^0, 32):
+  KT128(M=ptn(8191 bytes), C=`00`^0, 32):
     `1B 57 76 36 F7 23 64 3E 99 0C C7 D6 A6 59 83 74
      36 FD 6A 10 36 26 60 0E B8 30 1C D1 DB E5 53 D6`
 
-  KangarooTwelve(M=ptn(8192 bytes), C=`00`^0, 32):
+  KT128(M=ptn(8192 bytes), C=`00`^0, 32):
     `48 F2 56 F6 77 2F 9E DF B6 A8 B6 61 EC 92 DC 93
      B9 5E BD 05 A0 8A 17 B3 9A E3 49 08 70 C9 26 C3`
 
-  KangarooTwelve(M=ptn(8192 bytes), C=ptn(8189 bytes), 32):
+  KT128(M=ptn(8192 bytes), C=ptn(8189 bytes), 32):
     `3E D1 2F 70 FB 05 DD B5 86 89 51 0A B3 E4 D2 3C
      6C 60 33 84 9A A0 1E 1D 8C 22 0A 29 7F ED CD 0B`
 
-  KangarooTwelve(M=ptn(8192 bytes), C=ptn(8190 bytes), 32):
+  KT128(M=ptn(8192 bytes), C=ptn(8190 bytes), 32):
     `6A 7C 1B 6A 5C D0 D8 C9 CA 94 3A 4A 21 6C C6 46
      04 55 9A 2E A4 5F 78 57 0A 15 25 3D 67 BA 00 AE`]]></artwork></figure></t>
+
+    <t><figure><artwork><![CDATA[  KT256(M=`00`^0, C=`00`^0, 64):
+    `B2 3D 2E 9C EA 9F 49 04 E0 2B EC 06 81 7F C1 0C
+     E3 8C E8 E9 3E F4 C8 9E 65 37 07 6A F8 64 64 04
+     E3 E8 B6 81 07 B8 83 3A 5D 30 49 0A A3 34 82 35
+     3F D4 AD C7 14 8E CB 78 28 55 00 3A AE BD E4 A9`
+
+  KT256(M=`00`^0, C=`00`^0, 128):
+    `B2 3D 2E 9C EA 9F 49 04 E0 2B EC 06 81 7F C1 0C
+     E3 8C E8 E9 3E F4 C8 9E 65 37 07 6A F8 64 64 04
+     E3 E8 B6 81 07 B8 83 3A 5D 30 49 0A A3 34 82 35
+     3F D4 AD C7 14 8E CB 78 28 55 00 3A AE BD E4 A9
+     B0 92 53 19 D8 EA 1E 12 1A 60 98 21 EC 19 EF EA
+     89 E6 D0 8D AE E1 66 2B 69 C8 40 28 9F 18 8B A8
+     60 F5 57 60 B6 1F 82 11 4C 03 0C 97 E5 17 84 49
+     60 8C CD 2C D2 D9 19 FC 78 29 FF 69 93 1A C4 D0`
+
+  KT256(M=`00`^0, C=`00`^0, 10064), last 64 bytes:
+    `AD 4A 1D 71 8C F9 50 50 67 09 A4 C3 33 96 13 9B
+     44 49 04 1F C7 9A 05 D6 8D A3 5F 1E 45 35 22 E0
+     56 C6 4F E9 49 58 E7 08 5F 29 64 88 82 59 B9 93
+     27 52 F3 CC D8 55 28 8E FE E5 FC BB 8B 56 30 69`
+
+  KT256(M=ptn(1 bytes), C=`00`^0, 64):
+    `0D 00 5A 19 40 85 36 02 17 12 8C F1 7F 91 E1 F7
+     13 14 EF A5 56 45 39 D4 44 91 2E 34 37 EF A1 7F
+     82 DB 6F 6F FE 76 E7 81 EA A0 68 BC E0 1F 2B BF
+     81 EA CB 98 3D 72 30 F2 FB 02 83 4A 21 B1 DD D0`
+
+  KT256(M=ptn(17 bytes), C=`00`^0, 64):
+    `1B A3 C0 2B 1F C5 14 47 4F 06 C8 97 99 78 A9 05
+     6C 84 83 F4 A1 B6 3D 0D CC EF E3 A2 8A 2F 32 3E
+     1C DC CA 40 EB F0 06 AC 76 EF 03 97 15 23 46 83
+     7B 12 77 D3 E7 FA A9 C9 65 3B 19 07 50 98 52 7B`
+
+  KT256(M=ptn(17**2 bytes), C=`00`^0, 64):
+    `DE 8C CB C6 3E 0F 13 3E BB 44 16 81 4D 4C 66 F6
+     91 BB F8 B6 A6 1E C0 A7 70 0F 83 6B 08 6C B0 29
+     D5 4F 12 AC 71 59 47 2C 72 DB 11 8C 35 B4 E6 AA
+     21 3C 65 62 CA AA 9D CC 51 89 59 E6 9B 10 F3 BA`
+
+  KT256(M=ptn(17**3 bytes), C=`00`^0, 64):
+    `64 7E FB 49 FE 9D 71 75 00 17 1B 41 E7 F1 1B D4
+     91 54 44 43 20 99 97 CE 1C 25 30 D1 5E B1 FF BB
+     59 89 35 EF 95 45 28 FF C1 52 B1 E4 D7 31 EE 26
+     83 68 06 74 36 5C D1 91 D5 62 BA E7 53 B8 4A A5`
+
+  KT256(M=ptn(17**4 bytes), C=`00`^0, 64):
+    `B0 62 75 D2 84 CD 1C F2 05 BC BE 57 DC CD 3E C1
+     FF 66 86 E3 ED 15 77 63 83 E1 F2 FA 3C 6A C8 F0
+     8B F8 A1 62 82 9D B1 A4 4B 2A 43 FF 83 DD 89 C3
+     CF 1C EB 61 ED E6 59 76 6D 5C CF 81 7A 62 BA 8D`
+
+  KT256(M=ptn(17**5 bytes), C=`00`^0, 64):
+    `94 73 83 1D 76 A4 C7 BF 77 AC E4 5B 59 F1 45 8B
+     16 73 D6 4B CD 87 7A 7C 66 B2 66 4A A6 DD 14 9E
+     60 EA B7 1B 5C 2B AB 85 8C 07 4D ED 81 DD CE 2B
+     40 22 B5 21 59 35 C0 D4 D1 9B F5 11 AE EB 07 72`
+
+  KT256(M=ptn(17**6 bytes), C=`00`^0, 64):
+    `06 52 B7 40 D7 8C 5E 1F 7C 8D CC 17 77 09 73 82
+     76 8B 7F F3 8F 9A 7A 20 F2 9F 41 3B B1 B3 04 5B
+     31 A5 57 8F 56 8F 91 1E 09 CF 44 74 6D A8 42 24
+     A5 26 6E 96 A4 A5 35 E8 71 32 4E 4F 9C 70 04 DA`
+
+  KT256(`00`^0, C=ptn(1 bytes), 64):
+    `92 80 F5 CC 39 B5 4A 5A 59 4E C6 3D E0 BB 99 37
+     1E 46 09 D4 4B F8 45 C2 F5 B8 C3 16 D7 2B 15 98
+     11 F7 48 F2 3E 3F AB BE 5C 32 26 EC 96 C6 21 86
+     DF 2D 33 E9 DF 74 C5 06 9C EE CB B4 DD 10 EF F6`
+
+  KT256(`FF`, C=ptn(41 bytes), 64):
+    `47 EF 96 DD 61 6F 20 09 37 AA 78 47 E3 4E C2 FE
+     AE 80 87 E3 76 1D C0 F8 C1 A1 54 F5 1D C9 CC F8
+     45 D7 AD BC E5 7F F6 4B 63 97 22 C6 A1 67 2E 3B
+     F5 37 2D 87 E0 0A FF 89 BE 97 24 07 56 99 88 53`
+
+  KT256(`FF FF FF`, C=ptn(41**2 bytes), 64):
+    `3B 48 66 7A 50 51 C5 96 6C 53 C5 D4 2B 95 DE 45
+     1E 05 58 4E 78 06 E2 FB 76 5E DA 95 90 74 17 2C
+     B4 38 A9 E9 1D DE 33 7C 98 E9 C4 1B ED 94 C4 E0
+     AE F4 31 D0 B6 4E F2 32 4F 79 32 CA A6 F5 49 69`
+
+  KT256(`FF FF FF FF FF FF FF`, C=ptn(41**3 bytes), 64):
+    `E0 91 1C C0 00 25 E1 54 08 31 E2 66 D9 4A DD 9B
+     98 71 21 42 B8 0D 26 29 E6 43 AA C4 EF AF 5A 3A
+     30 A8 8C BF 4A C2 A9 1A 24 32 74 30 54 FB CC 98
+     97 67 0E 86 BA 8C EC 2F C2 AC E9 C9 66 36 97 24`
+
+  KT256(M=ptn(8191 bytes), C=`00`^0, 64):
+    `30 81 43 4D 93 A4 10 8D 8D 8A 33 05 B8 96 82 CE
+     BE DC 7C A4 EA 8A 3C E8 69 FB B7 3C BE 4A 58 EE
+     F6 F2 4D E3 8F FC 17 05 14 C7 0E 7A B2 D0 1F 03
+     81 26 16 E8 63 D7 69 AF B3 75 31 93 BA 04 5B 20`
+
+  KT256(M=ptn(8192 bytes), C=`00`^0, 64):
+    `C6 EE 8E 2A D3 20 0C 01 8A C8 7A AA 03 1C DA C2
+     21 21 B4 12 D0 7D C6 E0 DC CB B5 34 23 74 7E 9A
+     1C 18 83 4D 99 DF 59 6C F0 CF 4B 8D FA FB 7B F0
+     2D 13 9D 0C 90 35 72 5A DC 1A 01 B7 23 0A 41 FA`
+
+  KT256(M=ptn(8192 bytes), C=ptn(8189 bytes), 64):
+    `74 E4 78 79 F1 0A 9C 5D 11 BD 2D A7 E1 94 FE 57
+     E8 63 78 BF 3C 3F 74 48 EF F3 C5 76 A0 F1 8C 5C
+     AA E0 99 99 79 51 20 90 A7 F3 48 AF 42 60 D4 DE
+     3C 37 F1 EC AF 8D 2C 2C 96 C1 D1 6C 64 B1 24 96`
+
+  KT256(M=ptn(8192 bytes), C=ptn(8190 bytes), 64):
+    `F4 B5 90 8B 92 9F FE 01 E0 F7 9E C2 F2 12 43 D4
+     1A 39 6B 2E 73 03 A6 AF 1D 63 99 CD 6C 7A 0A 2D
+     D7 C4 F6 07 E8 27 7F 9C 9B 1C B4 AB 9D DC 59 D4
+     B9 2D 1F C7 55 84 41 F1 83 2C 32 79 A4 24 1B 8B`]]></artwork></figure></t>
   </section>
 
   <section anchor="Security" title="Security Considerations">
@@ -808,14 +942,16 @@
       +-----------------+-------------------------------+
       | TurboSHAKE128   |  128 bits (same as SHAKE128)  |
       |                 |                               |
-      | KangarooTwelve  |  128 bits (same as SHAKE128)  |
+      | KT128           |  128 bits (same as SHAKE128)  |
       |                 |                               |
       | TurboSHAKE256   |  256 bits (same as SHAKE256)  |
+      |                 |                               |
+      | KT256           |  256 bits (same as SHAKE256)  |
       +-----------------+-------------------------------+]]></artwork>
       </figure></t>
 
     <t>
-    To be more precise, KangarooTwelve is made of two layers:
+    To be more precise, KT128 is made of two layers:
     <list style="symbols">
     <t>The inner function TurboSHAKE128.
     The security assurance of this layer relies on cryptanalysis.
@@ -827,9 +963,13 @@
     of TurboSHAKE128 that does not introduce any vulnerability thanks to
     the use of Sakura coding proven secure in <xref target="SAKURA"/>.</t>
     </list></t>
-    <t>This reasoning is detailed and formalized in <xref target="K12"/>.</t>
+    <t>This reasoning is detailed and formalized in <xref target="KT"/>.</t>
 
-    <t>TurboSHAKE128 and KangarooTwelve aim at 128-bit security.
+    <t>KT256 is structured as KT128, except that it uses TurboSHAKE256 as inner function.
+    The TurboSHAKE256 function is exactly Keccak[r=1088, c=512] (as in SHAKE256)
+    reduced to 12 rounds, and the same reasoning on cryptanalysis applies.</t>
+
+    <t>TurboSHAKE128 and KT128 aim at 128-bit security.
     To achieve 128-bit security strength, the output L must be chosen long
     enough so that there are no generic attacks that violate 128-bit security.
     So for 128-bit (second) preimage security the output should be at least 128 bits,
@@ -837,28 +977,29 @@
     the output should be at least 128+log_2(T) bits
     and for 128-bit collision security the output should be at least 256 bits.
     Furthermore, when the output length is at least 256 bits, TurboSHAKE128 and
-    KangarooTwelve achieve NIST's post-quantum security level 2 <xref target="NISTPQ"/>.</t>
+    KT128 achieve NIST's post-quantum security level 2 <xref target="NISTPQ"/>.</t>
 
-    <t>Similarly, TurboSHAKE256 aims at 256-bit security.
+    <t>Similarly, TurboSHAKE256 and KT256 aim at 256-bit security.
     To achieve 256-bit security strength, the output L must be chosen long
     enough so that there are no generic attacks that violate 256-bit security.
     So for 256-bit (second) preimage security the output should be at least 256 bits,
     for 256 bits of security against multi-target preimage attacks with T targets
     the output should be at least 256+log_2(T) bits
     and for 256-bit collision security the output should be at least 512 bits.
-    Furthermore, when the output length is at least 512 bits, TurboSHAKE256
-    achieves NIST's post-quantum security level 5 <xref target="NISTPQ"/>.</t>
+    Furthermore, when the output length is at least 512 bits, TurboSHAKE256 and
+    KT256 achieve NIST's post-quantum security level 5 <xref target="NISTPQ"/>.</t>
 
     <t>
-    Unlike the SHA-256 and SHA-512 functions, KangarooTwelve, TurboSHAKE128 and TurboSHAKE256 do not suffer from the length extension weakness, and therefore do not require the use of the HMAC construction for instance when used for MAC computation <xref target="FIPS198"/>.
+    Unlike the SHA-256 and SHA-512 functions, TurboSHAKE128, TurboSHAKE256, KT128 and KT256 do not suffer from the length extension weakness, and therefore do not require the use of the HMAC construction for instance when used for MAC computation <xref target="FIPS198"/>.
     Also, they can naturally be used as a key derivation function.
       The input must be an injective encoding of secret and diversification material, and the output can be taken as the derived key(s).
       The input does not need to be uniformly distributed, e.g., it can be a shared secret produced by
       the Diffie-Hellman or ECDH protocol, but it needs to have sufficient min-entropy.
       </t>
 
-    <t>Lastly, as KangarooTwelve uses TurboSHAKE128 with three values for D,
-    namely 0x06, 0x07, and 0x0B. Protocols that use both KangarooTwelve and TurboSHAKE128,
+    <t>Lastly, as KangarooTwelve uses TurboSHAKE with three values for D,
+    namely 0x06, 0x07, and 0x0B.
+    Protocols that use both KT128 and TurboSHAKE128, or both KT256 and TurboSHAKE256,
     SHOULD avoid using these three values for D.</t>
   </section>
 
@@ -916,7 +1057,7 @@
     <seriesInfo name="WWW" value="http://eprint.iacr.org/2023/342"/>
   </reference>
 
-  <reference anchor="K12">
+  <reference anchor="KT">
     <front>
       <title>KangarooTwelve: fast hashing based on Keccak-p</title>
       <author initials="G." surname="Bertoni" fullname="Guido Bertoni"/>
@@ -1010,7 +1151,7 @@
     <t>The sub-sections of this appendix contain pseudocode definitions of
     TurboSHAKE128, TurboSHAKE256 and KangarooTwelve.
     Standalone Python versions are also available in the Keccak Code Package
-    <xref target="XKCP"></xref> and in <xref target="K12"></xref>
+    <xref target="XKCP"></xref> and in <xref target="KT"></xref>
   </t>
 
     <section anchor="Keccak_PC" title="Keccak-p[1600,n_r=12]">
@@ -1145,9 +1286,9 @@ TurboSHAKE256(message, separationByte, outputByteLen):
 ]]></artwork></figure></t>
     </section>
 
-    <section anchor="K12_PC" title="KangarooTwelve">
+    <section anchor="KT128_PC" title="KT128">
       <t><figure><artwork><![CDATA[
-KangarooTwelve(inputMessage, customString, outputByteLen):
+KT128(inputMessage, customString, outputByteLen):
   S = inputMessage || customString
   S = S || length_encode( |customString| )
 
@@ -1171,6 +1312,33 @@ KangarooTwelve(inputMessage, customString, outputByteLen):
   end
 ]]></artwork></figure></t>
     </section>
-  </section>
+
+    <section anchor="KT256_PC" title="KT256">
+      <t><figure><artwork><![CDATA[
+KT256(inputMessage, customString, outputByteLen):
+  S = inputMessage || customString
+  S = S || length_encode( |customString| )
+
+  if |S| <= 8192
+      return TurboSHAKE256(S, `07`, outputByteLen)
+  else
+      # === Kangaroo hopping ===
+      FinalNode = S[0:8192] || `03` || `00`^7
+      offset = 8192
+      numBlock = 0
+      while offset < |S|
+          blockSize = min( |S| - offset, 8192)
+          CV = TurboSHAKE256(S[offset : offset + blockSize], `0B`, 64)
+          FinalNode = FinalNode || CV
+          numBlock += 1
+          offset   += blockSize
+
+      FinalNode = FinalNode || length_encode( numBlock ) || `FF FF`
+
+      return TurboSHAKE256(FinalNode, `06`, outputByteLen)
+  end
+]]></artwork></figure></t>
+    </section>
+    </section>
 </back>
 </rfc>
