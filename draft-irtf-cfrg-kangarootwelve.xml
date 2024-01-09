@@ -546,7 +546,8 @@
       against SCA only the outer call does need protection,
       and this amounts to a single execution of the underlying permutation.</t>
 
-    <t>In any case, KangarooTwelve MAY be used to compute a MAC with the key
+    <t>In any case, TurboSHAKE128, TurboSHAKE256, KT128 and KT256
+      MAY be used to compute a MAC with the key
       reversibly prepended or appended to the input. For instance, one MAY
       compute a MAC on short messages simply calling KT128 with the
       key as the customization string, i.e., MAC = KT128(M, Key, L).</t>
