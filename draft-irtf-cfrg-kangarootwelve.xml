@@ -75,7 +75,7 @@
 
     <!-- month and day will be generated automatically by XL2RFC;
     be sure the year is current.-->
-    <date  year="2023" />
+    <date  year="2024" />
 
     <!--WG name at the upperleft corner of the doc,
     IETF is fine for non-WG IETF submissions -->
@@ -95,7 +95,7 @@
   TurboSHAKE256, KT128 and KT256.</t>
 
   <t>All four functions provide efficient and secure hashing primitives,
-  and the last is able to exploit the parallelism of the implementation
+  and the last two are able to exploit the parallelism of the implementation
   in a scalable way.</t>
 
   <t>This document builds up on the definitions of the permutations and of the
@@ -149,19 +149,19 @@
       KangarooTwelve functions have an extendable output.</t>
 
     <t>Unlike any <xref target="FIPS202"></xref> defined function, similarly to
-    functions defined in <xref target="SP800-185"></xref>, KangarooTwelve
-    allows the use of a customization string.</t>
+    functions defined in <xref target="SP800-185"></xref>, KT128 and KT256
+    allow the use of a customization string.</t>
 
     <t>Unlike any <xref target="FIPS202"></xref> and <xref target="SP800-185"></xref>
-    functions but ParallelHash, KangarooTwelve exploits available parallelism.</t>
+    functions but ParallelHash, KT128 and KT256 exploit available parallelism.</t>
 
-    <t>Unlike ParallelHash, KangarooTwelve does not have overhead when
+    <t>Unlike ParallelHash, KT128 and KT256 do not have overhead when
     processing short messages.</t>
 
     <t>The permutation in the TurboSHAKE functions has half
     the number of rounds compared to the one in the SHA-3 and SHAKE functions,
-    making it faster than any function defined in <xref target="FIPS202"></xref>.
-    KangarooTwelve immediately benefits from the same speedup, improving over
+    making them faster than any function defined in <xref target="FIPS202"></xref>.
+    The KangarooTwelve functions immediately benefit from the same speedup, improving over
     <xref target="FIPS202"></xref> and <xref target="SP800-185"></xref>.</t>
     </list></t>
 
@@ -516,7 +516,7 @@
       <t>KT256 is specified exactly like KT128, with two differences:</t>
       <list style="symbols">
         <t>All the calls to TurboSHAKE128 in KT128 are replaced with calls to TurboSHAKE256 in KT256.</t>
-        <t>The chaining values CV_1 to CV_(n-1) are 64-byte long in KT256 and are computed as follows:
+        <t>The chaining values CV_1 to CV_(n-1) are 64-byte long in KT256 and are computed as follows:</t>
       </list>
         <t><figure><artwork><![CDATA[
     CV_i = TurboSHAKE256( S_i, `0B`, 64 )]]></artwork></figure></t>
@@ -527,7 +527,7 @@
   </section>
 
   <section title="Message authentication codes">
-    <t>Implementing a MAC with KangarooTwelve SHOULD use a HASH-then-MAC construction.
+    <t>Implementing a MAC with KT128 or KT256 SHOULD use a HASH-then-MAC construction.
       This document recommends a method called HopMAC, defined as follows:</t>
 
     <t><figure>
@@ -548,7 +548,7 @@
 
     <t>In any case, KangarooTwelve MAY be used to compute a MAC with the key
       reversibly prepended or appended to the input. For instance, one MAY
-      compute a MAC on short messages simply calling KangarooTwelve with the
+      compute a MAC on short messages simply calling KT128 with the
       key as the customization string, i.e., MAC = KT128(M, Key, L).</t>
   </section>
 
@@ -997,7 +997,7 @@
       the Diffie-Hellman or ECDH protocol, but it needs to have sufficient min-entropy.
       </t>
 
-    <t>Lastly, as KangarooTwelve uses TurboSHAKE with three values for D,
+    <t>Lastly, as KT128 and KT256 use TurboSHAKE with three values for D,
     namely 0x06, 0x07, and 0x0B.
     Protocols that use both KT128 and TurboSHAKE128, or both KT256 and TurboSHAKE256,
     SHOULD avoid using these three values for D.</t>
