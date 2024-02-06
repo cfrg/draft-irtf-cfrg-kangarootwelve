@@ -17,6 +17,20 @@ def hexString(s):
         r = r + "{0:02X}".format(s[i])
     return r
 
+def hexStringSpecial(s):
+    if len(s) == 0:
+        return "`00`^0"
+    else:
+        return "`"+hexString(s)+"`"
+
+def numberStringSpecial(base, exponent):
+    if exponent == 0:
+        return "1"
+    elif exponent == 1:
+        return "{0:d}".format(base)
+    else:
+        return "{0:d}**{1:d}".format(base, exponent)
+
 def outputHex(s):
     for i in range(len(s)):
         print("{0:02X}".format(s[i]), end=' ')
