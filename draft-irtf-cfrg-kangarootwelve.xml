@@ -120,7 +120,7 @@
     faster.</t>
 
     <t>
-    KangarooTwelve is a sponge function family consisting of KT128 and KT256.
+    KangarooTwelve applies tree hashing on top of TurboSHAKE and comprises two functions, KT128 and KT256.
     Note that <xref target="KT"></xref> only defined KT128 under the name KangarooTwelve.
     KT256 is defined in this document.
     </t>
