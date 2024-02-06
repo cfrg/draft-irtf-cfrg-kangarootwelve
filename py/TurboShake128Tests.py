@@ -19,10 +19,10 @@ def generateSimpleRawMaterial(length, seed1, seed2):
 customizationByteSize = 32
 
 def performTestTurboSHAKE128OneInput(inputLen, outputLen, customLen):
-    customizationString = generateSimpleRawMaterial(customizationByteSize, customLen, 97)[0:customLen]
+    customization = 97
     inputMessage = generateSimpleRawMaterial(inputLen, outputLen, inputLen + customLen)
     print("outputLen {0:5d}, inputLen {1:5d}, customLen {2:3d}".format(outputLen, inputLen, customLen))
-    output = TurboSHAKE128(inputMessage, customizationString, outputLen)
+    output = TurboSHAKE128(inputMessage, customization, outputLen)
     print("Kangaroo-Twelve")
     print("Input of {0:d} bytes:".format(inputLen), end='')
     for i in range(min(inputLen, 16)):
