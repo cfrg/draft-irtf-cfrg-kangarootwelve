@@ -533,7 +533,7 @@
   </section>
 
   <section title="Message authentication codes">
-    <t>Implementing a MAC with KT128 or KT256 SHOULD use a HASH-then-MAC construction.
+    <t>Implementing a MAC with KT128 or KT256 MAY use a hash-then-MAC construction.
       This document recommends a method called HopMAC, defined as follows:</t>
 
     <t><figure>
