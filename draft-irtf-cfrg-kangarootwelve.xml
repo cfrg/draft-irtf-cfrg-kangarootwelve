@@ -185,9 +185,8 @@
     <section title="Conventions">
       <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
       "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
-      document are to be interpreted as described in RFC 2119 <xref
-      target="RFC2119"></xref> and RFC 8174 <xref
-      target="RFC8174"></xref>.</t>
+      document are to be interpreted as described in BCP 14 <xref target="RFC2119"></xref> <xref target="RFC8174"></xref>
+      when, and only when, they appear in all capitals, as shown here.</t>
 
       <t>The following notations are used throughout the document:</t>
 
@@ -977,7 +976,7 @@
     reduced to 12 rounds, and the same reasoning on cryptanalysis applies.</t>
 
     <t>TurboSHAKE128 and KT128 aim at 128-bit security.
-    To achieve 128-bit security strength, the output L must be chosen long
+    To achieve 128-bit security strength, the output L MUST be chosen long
     enough so that there are no generic attacks that violate 128-bit security.
     So for 128-bit (second) preimage security the output should be at least 128 bits,
     for 128 bits of security against multi-target preimage attacks with T targets
@@ -987,7 +986,7 @@
     KT128 achieve NIST's post-quantum security level 2 <xref target="NISTPQ"/>.</t>
 
     <t>Similarly, TurboSHAKE256 and KT256 aim at 256-bit security.
-    To achieve 256-bit security strength, the output L must be chosen long
+    To achieve 256-bit security strength, the output L MUST be chosen long
     enough so that there are no generic attacks that violate 256-bit security.
     So for 256-bit (second) preimage security the output should be at least 256 bits,
     for 256 bits of security against multi-target preimage attacks with T targets
