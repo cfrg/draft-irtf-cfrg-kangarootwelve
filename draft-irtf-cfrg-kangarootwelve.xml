@@ -99,12 +99,10 @@
   and the last two are able to exploit the parallelism of the implementation
   in a scalable way.</t>
 
-  <t>This document builds up on the definitions of the permutations and of the
+  <t>This document is a product of the Crypto Forum Research Group.
+  It builds up on the definitions of the permutations and of the
   sponge construction in [FIPS 202], and is meant to serve as a stable reference
   and an implementation guide.</t>
-
-  <t>This document represents the consensus of the Crypto Forum Research Group (CFRG)
-   in the IRTF. It is not an IETF product and is not a standard.</t>
 
   </abstract>
 </front>
@@ -181,6 +179,9 @@
 
     <t>Unlike any <xref target="FIPS180"></xref> functions, TurboSHAKE128, TurboSHAKE256, KT128 and KT256 use a round function with algebraic degree 2, which makes them more suitable to masking techniques for protections against side-channel attacks.</t>
     </list></t>
+
+    <t>This document represents the consensus of the Crypto Forum Research Group (CFRG)
+   in the IRTF. It is not an IETF product and is not a standard.</t>
 
     <section title="Conventions">
       <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
