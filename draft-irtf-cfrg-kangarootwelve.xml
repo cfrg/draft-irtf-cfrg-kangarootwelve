@@ -1216,8 +1216,8 @@ KP(state):
     lanes[0][0] ^= RC[round]
 
   state = `00`^0
-  for x from 0 to 4
-    for y from 0 to 4
+  for y from 0 to 4
+    for x from 0 to 4
       state = state || lanes[x][y]
 
   return state
