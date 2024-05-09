@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="US-ASCII"?>
 <!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
 <!ENTITY rfc2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY rfc8174 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8174.xml">
 ]>
 <?rfc toc="yes"?>
 <?rfc symrefs="yes"?>
@@ -98,9 +99,11 @@
   and the last two are able to exploit the parallelism of the implementation
   in a scalable way.</t>
 
-  <t>This document builds up on the definitions of the permutations and of the
+  <t>This document is a product of the Crypto Forum Research Group.
+  It builds up on the definitions of the permutations and of the
   sponge construction in [FIPS 202], and is meant to serve as a stable reference
   and an implementation guide.</t>
+
   </abstract>
 </front>
 
@@ -177,11 +180,14 @@
     <t>Unlike any <xref target="FIPS180"></xref> functions, TurboSHAKE128, TurboSHAKE256, KT128 and KT256 use a round function with algebraic degree 2, which makes them more suitable to masking techniques for protections against side-channel attacks.</t>
     </list></t>
 
+    <t>This document represents the consensus of the Crypto Forum Research Group (CFRG)
+   in the IRTF. It is not an IETF product and is not a standard.</t>
+
     <section title="Conventions">
       <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
       "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
-      document are to be interpreted as described in RFC 2119 <xref
-      target="RFC2119"></xref>.</t>
+      document are to be interpreted as described in BCP 14 <xref target="RFC2119"></xref> <xref target="RFC8174"></xref>
+      when, and only when, they appear in all capitals, as shown here.</t>
 
       <t>The following notations are used throughout the document:</t>
 
@@ -527,7 +533,7 @@
   </section>
 
   <section title="Message authentication codes">
-    <t>Implementing a MAC with KT128 or KT256 SHOULD use a HASH-then-MAC construction.
+    <t>Implementing a MAC with KT128 or KT256 MAY use a hash-then-MAC construction.
       This document recommends a method called HopMAC, defined as follows:</t>
 
     <t><figure>
@@ -971,7 +977,7 @@
     reduced to 12 rounds, and the same reasoning on cryptanalysis applies.</t>
 
     <t>TurboSHAKE128 and KT128 aim at 128-bit security.
-    To achieve 128-bit security strength, the output L must be chosen long
+    To achieve 128-bit security strength, the output L MUST be chosen long
     enough so that there are no generic attacks that violate 128-bit security.
     So for 128-bit (second) preimage security the output should be at least 128 bits,
     for 128 bits of security against multi-target preimage attacks with T targets
@@ -981,7 +987,7 @@
     KT128 achieve NIST's post-quantum security level 2 <xref target="NISTPQ"/>.</t>
 
     <t>Similarly, TurboSHAKE256 and KT256 aim at 256-bit security.
-    To achieve 256-bit security strength, the output L must be chosen long
+    To achieve 256-bit security strength, the output L MUST be chosen long
     enough so that there are no generic attacks that violate 256-bit security.
     So for 256-bit (second) preimage security the output should be at least 256 bits,
     for 256 bits of security against multi-target preimage attacks with T targets
@@ -1015,6 +1021,7 @@
 <!-- References Section -->
 <references title="Normative References">
   &rfc2119;
+  &rfc8174;
   <reference anchor="FIPS202">
     <front>
       <title>FIPS PUB 202 - SHA-3 Standard:  Permutation-Based Hash and
@@ -1209,8 +1216,8 @@ KP(state):
     lanes[0][0] ^= RC[round]
 
   state = `00`^0
-  for x from 0 to 4
-    for y from 0 to 4
+  for y from 0 to 4
+    for x from 0 to 4
       state = state || lanes[x][y]
 
   return state

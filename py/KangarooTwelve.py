@@ -11,45 +11,51 @@
 from TurboSHAKE import TurboSHAKE128, TurboSHAKE256
 from Utils import outputHex
 
-def right_encode(x):
+def length_encode(x):
     S = bytearray()
-    while(x > 0):
+    while x > 0:
         S = bytearray([x % 256]) + S
         x = x//256
     S = S + bytearray([len(S)])
     return S
 
 # inputMessage and customizationString must be of type byte string or byte array
-def KT128(inputMessage, customizationString, outputByteLen):
-    B = 8192
-    c = 256
-    S = bytearray(inputMessage) + bytearray(customizationString) + right_encode(len(customizationString))
-    # === Cut the input string into chunks of B bytes ===
-    n = (len(S)+B-1)//B
-    Si = [bytearray(S[i*B:(i+1)*B]) for i in range(n)]
-    if (n == 1):
-        # === Process the tree with only a final node ===
-        return TurboSHAKE128(Si[0], 0x07, outputByteLen)
-    else:
-        # === Process the tree with kangaroo hopping ===
-        CVi = [TurboSHAKE128(Si[i+1], 0x0B, c//8) for i in range(n-1)]
-        NodeStar = Si[0] + bytearray([3,0,0,0,0,0,0,0]) + bytearray().join(CVi) \
-            + right_encode(n-1) + b'\xFF\xFF'
-        return TurboSHAKE128(NodeStar, 0x06, outputByteLen)
+def KT128(inputMessage, customString, outputByteLen):
+    S = inputMessage + customString
+    S = S + length_encode(len(customString))
 
-def KT256(inputMessage, customizationString, outputByteLen):
-    B = 8192
-    c = 512
-    S = bytearray(inputMessage) + bytearray(customizationString) + right_encode(len(customizationString))
-    # === Cut the input string into chunks of B bytes ===
-    n = (len(S)+B-1)//B
-    Si = [bytearray(S[i*B:(i+1)*B]) for i in range(n)]
-    if (n == 1):
-        # === Process the tree with only a final node ===
-        return TurboSHAKE256(Si[0], 0x07, outputByteLen)
+    if len(S) <= 8192:
+        return TurboSHAKE128(S, 0x07, outputByteLen)
     else:
-        # === Process the tree with kangaroo hopping ===
-        CVi = [TurboSHAKE256(Si[i+1], 0x0B, c//8) for i in range(n-1)]
-        NodeStar = Si[0] + bytearray([3,0,0,0,0,0,0,0]) + bytearray().join(CVi) \
-            + right_encode(n-1) + b'\xFF\xFF'
-        return TurboSHAKE256(NodeStar, 0x06, outputByteLen)
+        # === Kangaroo hopping ===
+        FinalNode = S[0:8192] + bytearray([0x03] + [0x00]*7)
+        offset = 8192
+        numBlock = 0
+        while offset < len(S):
+            blockSize = min(len(S) - offset, 8192)
+            CV = TurboSHAKE128(S[offset : offset + blockSize], 0x0B, 32)
+            FinalNode = FinalNode + CV
+            numBlock += 1
+            offset   += blockSize
+        FinalNode = FinalNode + length_encode( numBlock ) + bytearray([0xFF, 0xFF])
+        return TurboSHAKE128(FinalNode, 0x06, outputByteLen)
+
+def KT256(inputMessage, customString, outputByteLen):
+    S = inputMessage + customString
+    S = S + length_encode(len(customString))
+
+    if len(S) <= 8192:
+        return TurboSHAKE256(S, 0x07, outputByteLen)
+    else:
+        # === Kangaroo hopping ===
+        FinalNode = S[0:8192] + bytearray([0x03] + [0x00]*7)
+        offset = 8192
+        numBlock = 0
+        while offset < len(S):
+            blockSize = min(len(S) - offset, 8192)
+            CV = TurboSHAKE256(S[offset : offset + blockSize], 0x0B, 64)
+            FinalNode = FinalNode + CV
+            numBlock += 1
+            offset   += blockSize
+        FinalNode = FinalNode + length_encode( numBlock ) + bytearray([0xFF, 0xFF])
+        return TurboSHAKE256(FinalNode, 0x06, outputByteLen)
