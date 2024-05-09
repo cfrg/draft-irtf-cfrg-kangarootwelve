@@ -8,7 +8,6 @@
 # and related or neighboring rights to the source code in this file.
 # http://creativecommons.org/publicdomain/zero/1.0/
 
-from TurboSHAKE import TurboSHAKE
 from KangarooTwelve import KT128, KT256
 from Utils import hexStringSpecial, numberStringSpecial, printTestVectorOutput
 
