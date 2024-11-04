@@ -232,7 +232,7 @@
 
         <t hangText="x**y"> denotes the exponentiation of x by y.</t>
 
-        <t hangText="x mod y"> denotes reminder of the division of x by y.</t>
+        <t hangText="x mod y"> denotes the remainder of the division of x by y.</t>
 
         <t hangText="x / y"> denotes the integer dividend of the division of x by y.</t>
         </list></t>
