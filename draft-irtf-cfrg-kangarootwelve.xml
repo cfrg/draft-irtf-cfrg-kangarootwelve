@@ -119,7 +119,7 @@
     <t>TurboSHAKE is a sponge function family that makes use of Keccak-p[n_r=12,b=1600], a round-reduced
     version of the permutation used in SHA-3. Similarly to the SHAKE's, it proposes two security strengths:
     128 bits for TurboSHAKE128 and 256 bits for TurboSHAKE256.
-    Halving the number of rounds compared to the original SHAKE functions makes TurboSHAKE roughly twice
+    Halving the number of rounds compared to the original SHAKE functions makes TurboSHAKE roughly two times
     faster.</t>
 
     <t>
@@ -173,7 +173,7 @@
     <t><list style="symbols">
     <t>Unlike <xref target="FIPS180"/> functions, the TurboSHAKE and KangarooTwelve functions have an extendable output.</t>
 
-    <t>The TurboSHAKE functions produce output at the same rate as they process input, whereas SHA-256 and SHA-512 produce output half as fast as they process input.</t>
+    <t>The TurboSHAKE functions produce output at the same rate as they process input, whereas SHA-256 and SHA-512, when used in a mask generation function (MGF) construction, produce output half as fast as they process input.</t>
 
     <t>Unlike the SHA-256 and SHA-512 functions, TurboSHAKE128, TurboSHAKE256, KT128 and KT256 do not suffer from the length extension weakness.</t>
 
@@ -232,7 +232,7 @@
 
         <t hangText="x**y"> denotes the exponentiation of x by y.</t>
 
-        <t hangText="x mod y"> denotes reminder of the division of x by y.</t>
+        <t hangText="x mod y"> denotes the remainder of the division of x by y.</t>
 
         <t hangText="x / y"> denotes the integer dividend of the division of x by y.</t>
         </list></t>
@@ -242,9 +242,10 @@
   <section title="TurboSHAKE">
     <section anchor="TurboSHAKE_Interface" title="Interface">
       <t>TurboSHAKE is a family of eXtendable Output Functions (XOF).
+        Internally, it makes use of the sponge construction, parameterized by two integers, the rate and the capacity, that sum to the permutation width (here, 1600 bits).
+        The rate gives the number of bits processed or produced per call to the permutation, whereas the capacity determines the security level, see <xref target="FIPS202"/> for more details.
         This document focuses on only two instances, namely, TurboSHAKE128 and TurboSHAKE256.
-        (Note that the original definition includes a wider range of instances parameterized by their capacity <xref target="TURBOSHAKE"/>.
-        The capacity is an essential parameter of the sponge construction, see <xref target="FIPS202"/> for more details.)
+        (Note that the original definition includes a wider range of instances parameterized by their capacity <xref target="TURBOSHAKE"/>.)
       </t>
 
       <t>
@@ -305,8 +306,9 @@
       <t>We now describe the operations inside TurboSHAKE128.<list style="symbols">
         <t>First the input M' is formed by appending the domain separation byte D to the message M.</t>
 
-        <t>Non-multiple of 168-bytes-length M' are padded with zeroes to the next
-        multiple of 168 bytes while M' with length multiple of 168 bytes are kept as is.
+        <t>
+          If the length of M' is not a multiple of 168 bytes then it is padded with zeros at the end to make it a multiple of 168 bytes.
+          If M' is already a multiple of 168 bytes then no padding is added.
         Then a byte `80` is XORed to the last byte of the padded input M'
         and the resulting string is split into a sequence of 168-byte blocks.
         </t>
@@ -321,13 +323,12 @@
         message blocks are XORed into the first 168 bytes of the state.
         Each block absorbed is followed with an application of KP to the state.</t>
 
-        <t>In the squeezing phase output is formed by taking the first 168 bytes
-        of the state, repeated as many times as necessary until outputByteLen
-        bytes are obtained, interleaved with the application of KP to the state.</t>
+        <t> In the squeezing phase the output is formed by taking the first 168 bytes of the state,
+          applying KP to the state, and repeating as many times as is necessary.</t>
       </list></t>
 
     <t>TurboSHAKE256 performs the same steps but makes use of 136-byte blocks with respect
-    to padding, absorbing, and squeezing phases.</t>
+    to the padding, absorbing, and squeezing phases.</t>
 
     <t>
     The definition of the TurboSHAKE functions equivalently implements the pad10*1 rule; see Section 5.1 of <xref target="FIPS202"/> for a definition of pad10*1.
@@ -362,7 +363,7 @@
         <t>By default, the Customization string is the empty string. For an API that
         does not support a customization string parameter, C MUST be the empty string.</t>
 
-        <t>Note that an implementation MAY propose an interface with input and/or output incrementality as specified in <xref target="TurboSHAKE_Interface"/>.</t>
+        <t>Note that an implementation MAY propose an interface with the input and/or output provided incrementally as specified in <xref target="TurboSHAKE_Interface"/>.</t>
     </section>
 
     <section title="Specification of KT128">
@@ -534,7 +535,7 @@
 
   <section title="Message authentication codes">
     <t>Implementing a MAC with KT128 or KT256 MAY use a hash-then-MAC construction.
-      This document recommends a method called HopMAC, defined as follows:</t>
+      This document defines and recommends a method called HopMAC:</t>
 
     <t><figure>
       <artwork><![CDATA[
@@ -550,7 +551,7 @@
       and does not require additional protection against side channel attacks (SCA).
       Consequently, in an implementation that has to protect the HopMAC key
       against SCA only the outer call does need protection,
-      and this amounts to a single execution of the underlying permutation.</t>
+      and this amounts to a single execution of the underlying permutation (assuming the key length is at most 69 bytes).</t>
 
     <t>In any case, TurboSHAKE128, TurboSHAKE256, KT128 and KT256
       MAY be used to compute a MAC with the key
