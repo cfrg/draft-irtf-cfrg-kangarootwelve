@@ -939,6 +939,37 @@
      B9 2D 1F C7 55 84 41 F1 83 2C 32 79 A4 24 1B 8B`]]></artwork></figure></t>
   </section>
 
+  <section anchor="IANA" title="IANA Considerations">
+    <t>IANA has allocated entries k12-256 and k12-512 in the Named Information Hash Algorithm Registry.
+    IANA is requested to update the references to refer to the final version of this document.</t>
+
+    <t>The rest of this paragraph should be kept in the final document:
+    In the Named Information Hash Algorithm Registry, k12-256 refers to the hash function obtained
+    by evaluating KT128 on the input message with default C (the empty string) and L = 32 bytes (256 bits).
+    Similarly, k12-512 refers to the hash function obtained by evaluating KT256 on the input message with
+    default C (the empty string) and L = 64 bytes (512 bits).</t>
+
+    <t>IANA is requested to update the COSE Algorithms registry by adding the following entries:</t>
+
+    <t><figure><artwork><![CDATA[
+      +---------------+-------+-------------------+
+      | Name          | Value | Description       |
+      +---------------+-------+-------------------+
+      | TurboSHAKE128 |       | TurboSHAKE128 XOF |
+      |               |       |                   |
+      | TurboSHAKE256 |       | TurboSHAKE256 XOF |
+      |               |       |                   |
+      | KT128         |       | KT128 XOF         |
+      |               |       |                   |
+      | KT256         |       | KT256 XOF         |
+      +---------------+-------+-------------------+]]></artwork>
+      </figure></t>
+
+      <t>The Value is left to be assigned by the IANA expert.
+      The other fields (Capabilities, Change Controller, Reference and Recommended)
+      are left at the discretion of the IANA expert.</t>
+  </section>
+
   <section anchor="Security" title="Security Considerations">
     <t>This document is meant to serve as a stable reference and an
     implementation guide for the KangarooTwelve and TurboSHAKE eXtendable Output Functions.
