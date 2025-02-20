@@ -959,7 +959,7 @@
         |               |       |                   |              |
         | KT256         |  -264 | KT256 XOF         | [kty]        |
         +---------------+-------+-------------------+--------------+ ]]></artwork>
-      </figure></t> 
+      </figure></t>
   </section>
 
   <section anchor="Security" title="Security Considerations">
